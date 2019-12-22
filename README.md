@@ -1,7 +1,12 @@
 # Cryptocurrency Exchanges Tracker - CETracker
 
-**CETracker** is a Javascript library to track cryptocurency exchanges and store tracked data on the MongoDB database.
-Currently, supported exchanges are: `Coinbase Pro`, `Kraken`, `Bittrex` and `Bitstamp`.
+**CETracker** is a `Javascript` (`Node.js`) library to track cryptocurency exchanges and store tracked data on the
+MongoDB database. Note that, for now, it is designed to track public data.
+Currently, supported exchanges are:
+- `Coinbase Pro`
+- `Kraken`
+- `Bittrex`
+- `Bitstamp`
 
 ## How to Build and Run?
 Before installing the project make sure you already installed minimum requirements: `Node.js (>= 12.0.0)` and
@@ -26,6 +31,19 @@ npm run dev
 
 ```
 pm2 start npm --name "cetracker" -- run start
+```
+
+##### Command Line Arguments
+*CETracker* has following command line arguments (optional):
+
+`-db_url:` MongoDB database URL. By default it is set to `mongodb://127.0.0.1:27017`.\
+`-db_name:` MongoDB database name. By default it is set to `cetracker_db`.\
+`-host:` Override MongoDB hostname for TLS certificate validation. By default it is not set.
+
+For example,
+
+```
+node --experimental-modules run_tracker.mjs --db_name my_db
 ```
 
 
@@ -66,3 +84,7 @@ the function must be an array.
 
 7. Now, open `coins_tracking.mjs` file in the root directory and call your new exchange's tracking functionality
 inside of `RunCoinsTracking` function, and you are all set.
+
+
+## Contributions
+Contributions can be made by submitting GitHub pull requests to this repository. In general, the `CETracker` source code follows [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript) and rules specified in `.eslintrc.json` file.
