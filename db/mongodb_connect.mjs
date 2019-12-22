@@ -1,10 +1,12 @@
 import assert from 'assert';
 import mongodb from 'mongodb';
+import tls from 'tls';
 
 
-function ConnectToMongoDB(callback) {
-  const url = 'mongodb://127.0.0.1:27017';
+function ConnectToMongoDB(url, db_name, callback, hostname) {
   const options = {
+    'sslValidate': true,
+    'checkServerIdentity': (name, cert) => tls.checkServerIdentity(hostname || name, cert),
     'poolSize': 64,
     'useNewUrlParser': true,
     'useUnifiedTopology': true,
@@ -16,7 +18,6 @@ function ConnectToMongoDB(callback) {
   mongodb.MongoClient.connect(url, options, (error, client) => {
     assert.equal(null, error);
 
-    const db_name = 'movehash_db';
     const mongo_db = client.db(db_name);
     if (mongo_db) {
       callback(null, mongo_db, client);
@@ -26,6 +27,5 @@ function ConnectToMongoDB(callback) {
   });
 }
 
-export { ConnectToMongoDB };
 export default ConnectToMongoDB;
 

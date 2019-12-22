@@ -1,6 +1,6 @@
 {
   "name": "cetracker",
-  "version": "0.1.4",
+  "version": "0.1.1",
   "description": "Cryptocurrency Exchanges Tracker",
   "main": "run_tracker.mjs",
   "author": "Artiom Baloian",
@@ -16,6 +16,7 @@
     "mongodb": "^3.3.4",
     "request": "^2.88.0",
     "signalr-client": "0.0.19",
+    "stdio": "^2.0.1",
     "zlib": "^1.0.5"
   },
   "devDependencies": {
