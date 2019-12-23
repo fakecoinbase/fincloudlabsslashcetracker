@@ -10,10 +10,10 @@ import kraken_currencies from '../exchanges/kraken/supported_coins.mjs';
 // Add a new exchange to the dictionary in following format:
 // '<exchange_name>': <exchange_name>_currencies
 const exchange_currencies = {
-  'bitstamp': bitstamp_currencies,
-  'bittrex': bittrex_currencies,
-  'coinbase': coinbase_currencies,
-  'kraken': kraken_currencies
+  bitstamp: bitstamp_currencies,
+  bittrex: bittrex_currencies,
+  coinbase: coinbase_currencies,
+  kraken: kraken_currencies
 };
 
 

@@ -112,12 +112,12 @@ class CoinbasePro {
       }
 
       const coin_data = {
-        'ticker': String(ticker),
-        'market': String(market),
-        'price': Number(ws_data.price),
-        'open_price': open_price,
-        'volume24h': volume24h,
-        'last_update': getUTCISOFormat()
+        ticker: String(ticker),
+        market: String(market),
+        price: Number(ws_data.price),
+        open_price,
+        volume24h,
+        last_update: getUTCISOFormat()
       };
 
       return coin_data;
@@ -145,8 +145,8 @@ class CoinbasePro {
             }
 
             product_stats[ticker][market] = {
-              'open_price': open_price,
-              'volume24h': volume24h
+              open_price,
+              volume24h
             };
           }
 

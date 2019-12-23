@@ -41,8 +41,8 @@ const product_id_list = usd_market.concat(btc_market);
 
 
 const coinbase_data = {
-  'exchange_name': 'coinbase',
-  'product_id': product_id_list
+  exchange_name: 'coinbase',
+  product_id: product_id_list
 };
 
 export default coinbase_data;

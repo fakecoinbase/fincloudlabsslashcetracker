@@ -11,12 +11,13 @@
 import { getUTCISOFormat } from '../utils/utils.mjs';
 import { getSupportedCoins } from '../utils/supported_coins.mjs';
 
+
 // Function constructs coins' metadata (coins_metadata variable) schema
 // for exchange coins.
 //
 // Arguments:
-// - coin_name: Coin's full name.
-// - data: Coin's data. It must be in this format:
+// -coin_name: Coin's full name.
+// -data: Coin's data. It must be in this format:
 //   {
 //    ticker: <ticker>,
 //    market: <market>,
@@ -28,22 +29,22 @@ import { getSupportedCoins } from '../utils/supported_coins.mjs';
 //   }
 function getExchCoinDataSchema(coin_name, data = null) {
   // Schema Properties.
-  // - name: Coin's full name.
-  // - market_cap: Market capitalization of coin.
-  // - volume24h: Trading volume in 24 hours based on base currency.
-  // - price: Current price in base currency. e.g. {USD: 120, BTC: 0.01}
-  // - open_price: An open price of coin based on base currency.
-  // - change24h: Basically this is a difference between an open price of coin
-  //              00:00 UTC time standard and current price in percentage.
+  // -name: Coin's full name.
+  // -market_cap: Market capitalization of coin.
+  // -volume24h: Trading volume in 24 hours based on base currency.
+  // -price: Current price in base currency. e.g. {USD: 120, BTC: 0.01}
+  // -open_price: An open price of coin based on base currency.
+  // -change24h: Basically this is a difference between an open price of coin
+  //  00:00 UTC time standard and current price in percentage.
   const coin_data = {
-    'name': String(coin_name),
-    'price': {},
-    'open_price': {},
-    'change24h': {},
-    'volume24h': {},
-    'supply': 0,
-    'market_cap': 0,
-    'last_update': getUTCISOFormat()
+    name: String(coin_name),
+    price: {},
+    open_price: {},
+    change24h: {},
+    volume24h: {},
+    supply: 0,
+    market_cap: 0,
+    last_update: getUTCISOFormat()
   };
 
   if (data) {
@@ -76,15 +77,15 @@ function getCoinsMetadata(exchange) {
 function getExchangeSchema(exchange_name) {
   // Schema Properties.
   //
-  // - exchange: Exchange name.
-  // - last_update: The last update of exchange in UTC standard.
-  // - coins_metadata: Coins' (supported by exchange) metadata.
-  //                   See getExchCoinDataSchema() function for metadata info.
+  // -exchange: Exchange name.
+  // -last_update: The last update of exchange in UTC standard.
+  // -coins_metadata: Coins' (supported by exchange) metadata.
+  //  See getExchCoinDataSchema() function for metadata info.
   const exchange_schema = {
-    '_id': String(exchange_name),
-    'exchange': String(exchange_name),
-    'last_update': getUTCISOFormat(),
-    'coins_metadata': getCoinsMetadata(exchange_name)
+    _id: String(exchange_name),
+    exchange: String(exchange_name),
+    last_update: getUTCISOFormat(),
+    coins_metadata: getCoinsMetadata(exchange_name)
   };
 
   return exchange_schema;

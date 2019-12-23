@@ -63,7 +63,7 @@ class Bitstamp {
 
   getBitstampCoinData(currency, callback) {
     const url = this.bitstamp_rest_api + currency.pairs;
-    request(url, {'json': true}, (error, response, body) => {
+    request(url, {json: true}, (error, response, body) => {
       if (!error && response.statusCode === 200) {
         const currency_data = this.VerifyReceivedData(body, currency);
         if (currency_data) {
@@ -106,12 +106,12 @@ class Bitstamp {
       }
 
       const coin_data = {
-        'ticker': currency.ticker,
-        'market': currency.market,
-        'price': Number(resp_data.last),
-        'open_price': Number(resp_data.open),
-        'volume24h': Math.round(Number(resp_data.volume)),
-        'last_update': getUTCISOFormat()
+        ticker: currency.ticker,
+        market: currency.market,
+        price: Number(resp_data.last),
+        open_price: Number(resp_data.open),
+        volume24h: Math.round(Number(resp_data.volume)),
+        last_update: getUTCISOFormat()
       };
 
       return coin_data;

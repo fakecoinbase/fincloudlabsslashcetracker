@@ -1,5 +1,5 @@
 /**
- * tracking.mjs
+ * coins_tracking.mjs
  *
  * Copyright (c) 2019, Artiom Baloian
  * All rights reserved.

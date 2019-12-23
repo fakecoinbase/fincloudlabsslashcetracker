@@ -48,8 +48,8 @@ function UpdateExistingData(exchanges_col, exchange_name, ws_data_list) {
     update[embedded_path + '.last_update'] = coin_data.last_update;
   }
 
-  const query = {'_id': exchange_name};
-  exchanges_col.updateOne(query, {'$set': update}, (error) => {
+  const query = {_id: exchange_name};
+  exchanges_col.updateOne(query, {$set: update}, (error) => {
     // If we get an error here it is okay, it will be updated again in a few
     // seconds.
     if (error) {
@@ -83,7 +83,7 @@ function UpdateExchangeDataOnDB(db, exchange_name, ws_data_list) {
 // schema.
 function SetupMongoDatabase(exchanges_col, exch_name, callback) {
   const exch_coins = getSupportedCoins(exch_name);
-  const query = {'_id': exch_name};
+  const query = {_id: exch_name};
 
   exchanges_col.findOne(query, (error, found) => {
     if (error) {
@@ -100,7 +100,7 @@ function SetupMongoDatabase(exchanges_col, exch_name, callback) {
       }
 
       if (Object.keys(update).length > 0) {
-        exchanges_col.updateOne(query, {'$set': update}, (db_error) => {
+        exchanges_col.updateOne(query, {$set: update}, (db_error) => {
           if (db_error) {
             callback(error.message, null);
           } else {
