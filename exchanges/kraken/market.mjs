@@ -45,16 +45,16 @@ const usd_market = [
 ];
 
 // For now I track only USD market.
-const btc_market = [/*TODO provide BTC market pairs*/];
+// TODO provide BTC market pairs
+const btc_market = [];
 
 const supported_pairs = usd_market.concat(btc_market);
 
 
 const kraken_data = {
-  'exchange_name': 'kraken',
-  'supported_pairs': supported_pairs
+  exchange_name: 'kraken',
+  supported_pairs
 };
 
-export { kraken_data };
 export default kraken_data;
 

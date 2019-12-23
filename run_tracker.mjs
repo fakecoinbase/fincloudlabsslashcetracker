@@ -22,23 +22,23 @@ import {
 
 
 const argv = stdio.getopt({
-  'db_url': {
-    'key': 'url',
-    'args': 1,
-    'description': 'MongoDB database URL',
-    'default': process.env['MONGODB_URL'] || default_db_url
+  db_url: {
+    key: 'url',
+    args: 1,
+    description: 'MongoDB database URL',
+    default: process.env['MONGODB_URL'] || default_db_url
   },
-  'db_name': {
-    'key': 'db_name',
-    'args': 1,
-    'description': 'MongoDB database name',
-    'default': default_db_name
+  db_name: {
+    key: 'db_name',
+    args: 1,
+    description: 'MongoDB database name',
+    default: default_db_name
   },
-  'host': {
-    'key': 'host',
-    'args': 1,
-    'description': 'Override MongoDB hostname for TLS certificate validation',
-    'default': ''
+  host: {
+    key: 'host',
+    args: 1,
+    description: 'Override MongoDB hostname for TLS certificate validation',
+    default: ''
   }
 });
 

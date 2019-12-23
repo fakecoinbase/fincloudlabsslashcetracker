@@ -9,6 +9,7 @@
  *   provided by Kraken Pro) using Kraken Pro's Websocket Feed.
  */
 
+import WebSocket from 'ws';
 
 import kraken_data from './market.mjs';
 import { UpdateExchangeDataOnDB } from '../../db/update_db.mjs';
@@ -18,9 +19,6 @@ import {
   HasKey,
   Debug
 } from '../../utils/utils.mjs';
-
-import assert from 'assert';
-import WebSocket from 'ws';
 
 
 class Kraken {
@@ -32,11 +30,11 @@ class Kraken {
   constructor(db) {
     this.db = db;
     this.request_msg = {
-      'event': "subscribe",
-      'reqid': 123456789,
-      'pair': kraken_data.supported_pairs,
-      'subscription': {
-        'name': 'ticker'
+      event: 'subscribe',
+      reqid: 123456789,
+      pair: kraken_data.supported_pairs,
+      subscription: {
+        name: 'ticker'
       }
     };
   }
@@ -44,7 +42,7 @@ class Kraken {
 
   run() {
     this.ListenWebsocket();
-  };
+  }
 
 
   ReconnectSocket() {
@@ -58,7 +56,6 @@ class Kraken {
   // Note that function is going to run/listen always in background, if any
   // errors occur It won't handle it.
   ListenWebsocket() {
-
     let ws = new WebSocket('wss://ws.kraken.com');
 
     ws.on('open', () => {
@@ -67,7 +64,7 @@ class Kraken {
 
 
     ws.on('message', (ws_data) => {
-      ws_data = this.VerifyWebsocketData(ws_data);
+      ws_data = Kraken.VerifyWebsocketData(ws_data);
       if (ws_data) {
         // Note that this is an async function.
         UpdateExchangeDataOnDB(this.db, kraken_data.exchange_name, [ws_data]);
@@ -80,7 +77,7 @@ class Kraken {
       const reconnect_interval_ms = 10000;
       const msg = 'Kraken socket was closed, it will reconnect again';
       Debug(msg);
-      setTimeout(() => { this.ReconnectSocket() }, reconnect_interval_ms);
+      setTimeout(() => { this.ReconnectSocket(); }, reconnect_interval_ms);
     });
   }
 
@@ -93,8 +90,7 @@ class Kraken {
   // - ws_data: Websocket data received from Kraken.
   //
   // Returns null if verification failed, otherwise returns verified data.
-  VerifyWebsocketData(ws_data) {
-
+  static VerifyWebsocketData(ws_data) {
     try {
       ws_data = JSON.parse(ws_data);
     } catch (e) {
@@ -106,7 +102,6 @@ class Kraken {
     // which are used in the project
     if (Array.isArray(ws_data) && ws_data.length >= 4 &&
         ws_data[1] && ws_data[3]) {
-
       let ticker = ws_data[3].split('/')[0];
       const market = ws_data[3].split('/')[1];
       // For now I track only USD market.
@@ -115,31 +110,30 @@ class Kraken {
       }
 
       // Few pairs have supported aliases.
-      if (ticker == 'XBT') {
+      if (ticker === 'XBT') {
         ticker = 'BTC';
-      } else if (ticker == 'XDG') {
+      } else if (ticker === 'XDG') {
         ticker = 'DOGE';
-      } else if (ticker == 'XTR') {
+      } else if (ticker === 'XTR') {
         ticker = 'XLM';
       }
 
       const supported_coins = getSupportedCoins(kraken_data.exchange_name);
-      if (!supported_coins || !supported_coins.hasOwnProperty(ticker)) {
+      if (!supported_coins || !HasKey(supported_coins, ticker)) {
         return null;
       }
 
-      let market_data = ws_data[1];
+      const market_data = ws_data[1];
       if (HasKey(market_data, 'c') &&
           HasKey(market_data, 'o') &&
           HasKey(market_data, 'v')) {
-
         const coin_data = {
-          'ticker': String(ticker),
-          'market': String(market),
-          'price': Number(market_data.c[0]),
-          'open_price': Number(market_data.o[1]),
-          'volume24h': Math.round(Number(market_data.v[1])),
-          'last_update': getUTCISOFormat()
+          ticker: String(ticker),
+          market: String(market),
+          price: Number(market_data.c[0]),
+          open_price: Number(market_data.o[1]),
+          volume24h: Math.round(Number(market_data.v[1])),
+          last_update: getUTCISOFormat()
         };
 
         return coin_data;
@@ -148,7 +142,7 @@ class Kraken {
 
     return null;
   }
-};
+}
 
 export default Kraken;
 

@@ -171,12 +171,12 @@ class Bittrex {
           const supported_coins = getSupportedCoins(this.exchange_name);
           if (supported_coins && HasKey(supported_coins, ticker)) {
             const coin_data = {
-              'ticker': String(ticker),
-              'market': String(market),
-              'price': Number(market_data.l),
-              'open_price': Number(market_data.PD),
-              'volume24h': Math.round(Number(market_data.m)),
-              'last_update': getUTCISOFormat()
+              ticker: String(ticker),
+              market: String(market),
+              price: Number(market_data.l),
+              open_price: Number(market_data.PD),
+              volume24h: Math.round(Number(market_data.m)),
+              last_update: getUTCISOFormat()
             };
             market_summary.push(coin_data);
           }
