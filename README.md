@@ -3,10 +3,10 @@
 **CETracker** is a `Javascript` (`Node.js`) library to track cryptocurency exchanges and store tracked data on the
 MongoDB database. Note that, for now, it is designed to track public data.
 Currently, supported exchanges are:
+- `Bitstamp`
+- `Bittrex`
 - `Coinbase Pro`
 - `Kraken`
-- `Bittrex`
-- `Bitstamp`
 
 ## How to Build and Run?
 Before installing the project make sure you already installed minimum requirements: `Node.js (>= 12.0.0)` and
@@ -85,6 +85,43 @@ the function must be an array.
 7. Now, open `coins_tracking.mjs` file in the root directory and call your new exchange's tracking functionality
 inside of `RunCoinsTracking` function, and you are all set.
 
+## Database Design
+**CETracker** uses MongoDB database. By default database name is set to `cetracker_db` which has one collection, and
+collection name is `exchs_metadata_col`. See collection's document schema bellow:
+
+```
+{ _id: <exchange_name>,
+  exchange: <exchange_name>,
+  last_update: <UTC ISO Format>,
+  coins_metadata: {
+    <coin_ticker> : {
+      name: <coin_name>,
+      price: {
+        <base_currency>: <price>,
+        ...
+      },
+      open_price: {
+        <base_currency>: <open_price>,
+        ...
+      },
+      change24h: {
+        <base_currency>: <change_24_hours>,
+        ...
+      },
+      volume24h: {
+         <base_currency>: <volume_24_hours>,
+         ...
+      },
+      supply: <circulating_supply>,
+      market_cap: <market_capitalization>,
+      last_update: <UTC ISO Format>
+    },
+    ...
+  }
+}
+```
 
 ## Contributions
-Contributions can be made by submitting GitHub pull requests to this repository. In general, the `CETracker` source code follows [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript) and rules specified in `.eslintrc.json` file.
+Contributions are welcome and can be made by submitting GitHub pull requests to this repository. In general, the
+`CETracker` source code follows [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript) and rules
+specified in `.eslintrc.json` file.
