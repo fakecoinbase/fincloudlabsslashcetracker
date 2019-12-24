@@ -48,7 +48,7 @@ node --experimental-modules run_tracker.mjs --db_name my_db
 
 
 ## How to Add a New Exchange API?
-1. Create a directory in `exchanges` directory and give a name `<exchange_name>`.
+1. Create a directory inside of the `exchanges` directory and give a name `<exchange_name>`.
 2. Create a `supported_coins.mjs` file inside of newly created directory, named by the exchange name, and provide
 supported coins in following format:
 
@@ -67,12 +67,12 @@ export default <exchange name>_currencies;
 
 ```
 const currency_data = {
-  'ticker': <coin's ticker in string format>,
-  'market': <coin's market in string format>,
-  'price': <coin's price in number format>,
-  'open_price': <coin's open price in number format>,
-  'volume24h': <coin's 24 hours volume in number format>,
-  'last_update': <UTC ISO Format timestamp in string format>
+  ticker: <coin's ticker in string format>,
+  market: <coin's market in string format>,
+  price: <coin's price in number format>,
+  open_price: <coin's open price in number format>,
+  volume24h: <coin's 24 hours volume in number format>,
+  last_update: <UTC ISO Format timestamp in string format>
 };
 ```
 
