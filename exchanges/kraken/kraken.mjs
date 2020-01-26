@@ -79,6 +79,17 @@ class Kraken {
       Debug(msg);
       setTimeout(() => { this.ReconnectSocket(); }, reconnect_interval_ms);
     });
+
+
+    ws.on('error', (error) => {
+      Debug(error);
+      if (ws) {
+        ws.close();
+      }
+      ws = null;
+      const reconnect_interval_ms = 10000;
+      setTimeout(() => { this.ReconnectSocket(); }, reconnect_interval_ms);
+    });
   }
 
 

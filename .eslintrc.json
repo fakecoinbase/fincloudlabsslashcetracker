@@ -24,6 +24,7 @@
         "no-new-object": "error",
         "no-plusplus": "off",
         "prefer-template": "off",
+        "no-shadow": ["error", {"allow": ["error"]}],
         "prefer-destructuring": "off",
         "object-curly-spacing": "off",
         "dot-notation": "off",
