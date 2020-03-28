@@ -27,11 +27,9 @@ const {CoinbasePro, WebSocketChannelName, WebSocketEvent} = coinbase_pro_node;
 class CoinbaseProClass {
   // Data members:
   // - db: MongoDB database.
-  // - per_request_interval: Per request interval in milliseconds.
-  // - public_client: Public client object of the Coinbase Pro package.
+  // - client: Public client object of the Coinbase Pro package.
   constructor(db) {
     this.db = db;
-    this.per_request_interval = 5000;
     this.client = new CoinbasePro({
       apiKey: '',
       apiSecret: '',
@@ -44,22 +42,21 @@ class CoinbaseProClass {
     };
   }
 
-  run() {
+  async run() {
+    await this.init();
     this.ListenWebsocket();
   }
 
   async init() {
-    await this.client.ws.connect();
-    this.client.ws.subscribe([this.channel]);
-  }
-
-  async ReconnectSocket() {
-    this.ListenWebsocket();
+    try {
+      await this.client.ws.connect();
+      this.client.ws.subscribe([this.channel]);
+    } catch (error) {
+      Debug(error);
+    }
   }
 
   async ListenWebsocket() {
-    await this.init();
-
     this.client.ws.on(WebSocketEvent.ON_MESSAGE_TICKER, (ws_data) => {
       ws_data = CoinbaseProClass.VerifyWebsocketData(ws_data);
       if (ws_data) {
@@ -68,13 +65,11 @@ class CoinbaseProClass {
     });
 
     this.client.ws.on(WebSocketEvent.ON_ERROR, (error) => {
-      Debug('Coinbase Pro websocket error:', error);
+      // Debug('Coinbase Pro websocket error:', error);
     });
 
     this.client.ws.on(WebSocketEvent.ON_CLOSE, () => {
-      const reconnect_interval_ms = 10000;
       Debug('Coinbase Pro websocket was closed, it will reconnect again');
-      setTimeout(() => { this.ReconnectSocket(); }, reconnect_interval_ms);
     });
   }
 

@@ -26,6 +26,7 @@ const usd_market = [
 ];
 
 const btc_market = [
+/*
   'BCH-BTC',
   'EOS-BTC',
   'ETC-BTC',
@@ -35,6 +36,7 @@ const btc_market = [
   'XLM-BTC',
   'XRP-BTC',
   'ZRX-BTC'
+*/
 ];
 
 const product_id_list = usd_market.concat(btc_market);
