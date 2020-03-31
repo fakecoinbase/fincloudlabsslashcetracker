@@ -49,7 +49,14 @@ class CoinbaseProClass {
 
   async init() {
     try {
-      await this.client.ws.connect();
+      await this.client.ws.connect({
+        connectionTimeout: 8000,
+        debug: false,
+        maxReconnectionDelay: 10000,
+        maxRetries: Infinity,
+        minReconnectionDelay: 8000,
+        reconnectionDelayGrowFactor: 1,
+      });
       this.client.ws.subscribe([this.channel]);
     } catch (error) {
       Debug(error);
@@ -64,8 +71,13 @@ class CoinbaseProClass {
       }
     });
 
+    this.client.ws.on(WebSocketEvent.ON_OPEN, () => {
+       // TODO check if it is connected
+       Debug('Coinbase Pro websocket established connection!');
+    });
+
     this.client.ws.on(WebSocketEvent.ON_ERROR, (error) => {
-      // Debug('Coinbase Pro websocket error:', error);
+      //Debug('Coinbase Pro websocket error:', error.message);
     });
 
     this.client.ws.on(WebSocketEvent.ON_CLOSE, () => {
