@@ -72,7 +72,7 @@ class CoinbaseProClass {
     });
 
     this.client.ws.on(WebSocketEvent.ON_OPEN, () => {
-       // TODO check if it is connected
+       this.client.ws.subscribe([this.channel]);
        Debug('Coinbase Pro websocket established connection!');
     });
 
@@ -81,6 +81,7 @@ class CoinbaseProClass {
     });
 
     this.client.ws.on(WebSocketEvent.ON_CLOSE, () => {
+      this.client.ws.unsubscribe([this.channel]);
       Debug('Coinbase Pro websocket was closed, it will reconnect again');
     });
   }
