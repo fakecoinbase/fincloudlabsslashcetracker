@@ -40,27 +40,23 @@ class CoinbaseProClass {
       name: WebSocketChannelName.TICKER,
       product_ids: coinbase_data.product_id,
     };
+    this.init();
   }
 
-  async run() {
-    await this.init();
+  run() {
     this.ListenWebsocket();
   }
 
-  async init() {
-    try {
-      await this.client.ws.connect({
-        connectionTimeout: 8000,
-        debug: false,
-        maxReconnectionDelay: 10000,
-        maxRetries: Infinity,
-        minReconnectionDelay: 8000,
-        reconnectionDelayGrowFactor: 1,
-      });
-      this.client.ws.subscribe([this.channel]);
-    } catch (error) {
-      Debug(error);
-    }
+  init() {
+    this.client.ws.connect({
+      connectionTimeout: 5000,
+      debug: false,
+      maxReconnectionDelay: 10000,
+      maxRetries: Infinity,
+      minReconnectionDelay: 5000,
+      reconnectionDelayGrowFactor: 1,
+    });
+    this.client.ws.subscribe([this.channel]);
   }
 
   async ListenWebsocket() {
@@ -72,7 +68,6 @@ class CoinbaseProClass {
     });
 
     this.client.ws.on(WebSocketEvent.ON_OPEN, () => {
-       this.client.ws.subscribe([this.channel]);
        Debug('Coinbase Pro websocket established connection!');
     });
 
@@ -81,7 +76,6 @@ class CoinbaseProClass {
     });
 
     this.client.ws.on(WebSocketEvent.ON_CLOSE, () => {
-      this.client.ws.unsubscribe([this.channel]);
       Debug('Coinbase Pro websocket was closed, it will reconnect again');
     });
   }
