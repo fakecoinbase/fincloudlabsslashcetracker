@@ -11,7 +11,7 @@
  *   and trades.
  */
 
-import coinbase_pro_node from 'coinbase-pro-node';
+import WebSocket from 'ws';
 
 import coinbase_data from './market.mjs';
 import { UpdateExchangeDataOnDB } from '../../db/update_db.mjs';
@@ -21,64 +21,60 @@ import {
   Debug,
 } from '../../utils/utils.mjs';
 
-const {CoinbasePro, WebSocketChannelName, WebSocketEvent} = coinbase_pro_node;
 
-
-class CoinbaseProClass {
-  // Data members:
-  // - db: MongoDB database.
-  // - client: Public client object of the Coinbase Pro package.
+class CoinbasePro {
   constructor(db) {
     this.db = db;
-    this.client = new CoinbasePro({
-      apiKey: '',
-      apiSecret: '',
-      passphrase: '',
-      useSandbox: false,
-    });
-    this.channel = {
-      name: WebSocketChannelName.TICKER,
-      product_ids: coinbase_data.product_id,
+    this.reconnect_interval_ms = 5000;
+    this.request_msg = {
+      type: 'subscribe',
+      channels: [{name: 'ticker', product_ids: coinbase_data.product_id}]
     };
-    this.init();
   }
+
 
   run() {
     this.ListenWebsocket();
   }
 
-  init() {
-    this.client.ws.connect({
-      connectionTimeout: 5000,
-      debug: false,
-      maxReconnectionDelay: 10000,
-      maxRetries: Infinity,
-      minReconnectionDelay: 5000,
-      reconnectionDelayGrowFactor: 1,
-    });
-    this.client.ws.subscribe([this.channel]);
+
+  ReconnectSocket() {
+    this.ListenWebsocket();
   }
 
-  async ListenWebsocket() {
-    this.client.ws.on(WebSocketEvent.ON_MESSAGE_TICKER, (ws_data) => {
-      ws_data = CoinbaseProClass.VerifyWebsocketData(ws_data);
+
+  ListenWebsocket() {
+    let ws = new WebSocket('wss://ws-feed.pro.coinbase.com');
+
+    ws.on('open', () => {
+      ws.send(JSON.stringify(this.request_msg));
+    });
+
+    ws.on('message', (message) => {
+      let ws_data = {};
+      try {
+        ws_data = JSON.parse(message);
+      } catch (e) {
+        Debug(e);
+      }
+
+      ws_data = CoinbasePro.VerifyWebsocketData(ws_data);
       if (ws_data) {
         UpdateExchangeDataOnDB(this.db, coinbase_data.exchange_name, [ws_data]);
       }
     });
 
-    this.client.ws.on(WebSocketEvent.ON_OPEN, () => {
-       Debug('Coinbase Pro websocket established connection!');
-    });
-
-    this.client.ws.on(WebSocketEvent.ON_ERROR, (error) => {
-      //Debug('Coinbase Pro websocket error:', error.message);
-    });
-
-    this.client.ws.on(WebSocketEvent.ON_CLOSE, () => {
+    ws.on('close', () => {
+      ws = null;
       Debug('Coinbase Pro websocket was closed, it will reconnect again');
+      setTimeout(() => { this.ReconnectSocket(); }, this.reconnect_interval_ms);
+    });
+
+    ws.on('error', (error) => {
+      Debug(error);
     });
   }
+
 
   // Function verifies websocket data received from Coinbase Pro websocket.
   // It checks if received data contains corresponding properties and they
@@ -117,5 +113,5 @@ class CoinbaseProClass {
   }
 }
 
-export default CoinbaseProClass;
+export default CoinbasePro;
 
