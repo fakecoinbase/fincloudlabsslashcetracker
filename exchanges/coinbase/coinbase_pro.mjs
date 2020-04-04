@@ -20,6 +20,7 @@ import {
   HasKey,
   Debug,
 } from '../../utils/utils.mjs';
+
 const {CoinbasePro, WebSocketChannelName, WebSocketEvent} = coinbase_pro_node;
 
 class CoinbaseProClass {
