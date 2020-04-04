@@ -11,7 +11,7 @@
  *   and trades.
  */
 
-import WebSocket from 'ws';
+import coinbase_pro_node from 'coinbase-pro-node';
 
 import coinbase_data from './market.mjs';
 import { UpdateExchangeDataOnDB } from '../../db/update_db.mjs';
@@ -20,61 +20,48 @@ import {
   HasKey,
   Debug,
 } from '../../utils/utils.mjs';
+const {CoinbasePro, WebSocketChannelName, WebSocketEvent} = coinbase_pro_node;
 
-
-class CoinbasePro {
+class CoinbaseProClass {
   constructor(db) {
     this.db = db;
     this.reconnect_interval_ms = 5000;
     this.request_msg = {
-      type: 'subscribe',
-      channels: [{name: 'ticker', product_ids: coinbase_data.product_id}]
+      name: WebSocketChannelName.TICKER,
+      product_ids: coinbase_data.product_id,
     };
+    this.client = new CoinbasePro();
+    this.init();
   }
-
 
   run() {
     this.ListenWebsocket();
   }
 
-
-  ReconnectSocket() {
-    this.ListenWebsocket();
-  }
-
-
-  ListenWebsocket() {
-    let ws = new WebSocket('wss://ws-feed.pro.coinbase.com');
-
-    ws.on('open', () => {
-      ws.send(JSON.stringify(this.request_msg));
+  init() {
+    this.client.ws.on(WebSocketEvent.ON_OPEN, () => {
+      this.client.ws.subscribe([this.request_msg]);
     });
 
-    ws.on('message', (message) => {
-      let ws_data = {};
-      try {
-        ws_data = JSON.parse(message);
-      } catch (e) {
-        Debug(e);
-      }
+    this.client.ws.on(WebSocketEvent.ON_ERROR, (error) => {
+      Debug('Coinbase Pro websocket error:', error.message);
+    });
 
-      ws_data = CoinbasePro.VerifyWebsocketData(ws_data);
+    this.client.ws.on(WebSocketEvent.ON_MESSAGE_TICKER, (ws_data) => {
+      ws_data = CoinbaseProClass.VerifyWebsocketData(ws_data);
       if (ws_data) {
         UpdateExchangeDataOnDB(this.db, coinbase_data.exchange_name, [ws_data]);
       }
     });
 
-    ws.on('close', () => {
-      ws = null;
+    this.client.ws.on(WebSocketEvent.ON_CLOSE, () => {
       Debug('Coinbase Pro websocket was closed, it will reconnect again');
-      setTimeout(() => { this.ReconnectSocket(); }, this.reconnect_interval_ms);
-    });
-
-    ws.on('error', (error) => {
-      Debug(error);
     });
   }
 
+  async ListenWebsocket() {
+    this.client.ws.connect({connectionTimeout: this.reconnect_interval_ms, debug: true});
+  }
 
   // Function verifies websocket data received from Coinbase Pro websocket.
   // It checks if received data contains corresponding properties and they
@@ -113,5 +100,4 @@ class CoinbasePro {
   }
 }
 
-export default CoinbasePro;
-
+export default CoinbaseProClass;
