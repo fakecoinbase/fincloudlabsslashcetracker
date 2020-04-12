@@ -8,17 +8,16 @@
  *   The main module to run CETracker.
  */
 
-import assert from 'assert';
 import stdio from 'stdio';
-
-import ConnectToMongoDB from './db/mongodb_connect.mjs';
-import { SetupDB } from './db/update_db.mjs';
+import getMongoDB from './db/mongodb_connect.mjs';
+import { setupDB } from './db/update_db.mjs';
 import { Debug } from './utils/utils.mjs';
-import { RunCoinsTracking } from './coins_tracking.mjs';
-import {
-  default_db_url,
-  default_db_name
-} from './utils/constants.mjs';
+import { default_db_url, default_db_name } from './utils/constants.mjs';
+
+import Bitstamp from './exchanges/bitstamp/bitstamp.mjs';
+import Bittrex from './exchanges/bittrex/bittrex.mjs';
+import CoinbasePro from './exchanges/coinbase/coinbase_pro.mjs';
+import Kraken from './exchanges/kraken/kraken.mjs';
 
 
 const argv = stdio.getopt({
@@ -43,6 +42,31 @@ const argv = stdio.getopt({
 });
 
 
+
+// Function runs all exchanges API.
+// Note that If I add a new exchange API I should call it here.
+//
+// Arguments:
+// - db: MongoDB database.
+function RunCoinsTracking(db) {
+  // Bellow objects are going to run/listen always in background and store
+  // tracked data on the MongoDB database.
+
+  const bitstamp = new Bitstamp(db);
+  bitstamp.run();
+
+  const bittrex = new Bittrex(db);
+  bittrex.run();
+
+  const coinbase_pro = new CoinbasePro(db);
+  coinbase_pro.run();
+
+  const kraken = new Kraken(db);
+  kraken.run();
+}
+
+
+
 // Command Line Arguments:
 // -url: MongoDB database URL.
 // -db_name: MongoDB database name.
@@ -50,21 +74,18 @@ const argv = stdio.getopt({
 //
 // For example,
 // node --experimental-modules run_tracker.mjs --db_name my_mongo_db
-function main() {
-  ConnectToMongoDB(argv.db_url, argv.db_name, (error, db) => {
-    assert.equal(null, error);
-
-    // Create database schemas for exchanges if they do not exist.
-    SetupDB(db, (db_error) => {
-      if (db_error) {
-        Debug(db_error);
-      } else {
-        console.log('Database setup has been done successfully');
-        RunCoinsTracking(db);
-      }
-    });
-  });
+async function main() {
+  try {
+    const db = await getMongoDB(argv.db_url, argv.db_name);
+    await setupDB(db);
+    RunCoinsTracking(db);
+  } catch (error) {
+    Debug(error);
+  }
 }
 
-main();
+
+(async () => {
+  main();
+})();
 

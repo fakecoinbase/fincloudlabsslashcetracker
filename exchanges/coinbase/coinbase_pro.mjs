@@ -61,7 +61,7 @@ class CoinbaseProClass {
   }
 
   async ListenWebsocket() {
-    this.client.ws.connect({connectionTimeout: this.reconnect_interval_ms, debug: true});
+    this.client.ws.connect({connectionTimeout: this.reconnect_interval_ms, debug: false});
   }
 
   // Function verifies websocket data received from Coinbase Pro websocket.

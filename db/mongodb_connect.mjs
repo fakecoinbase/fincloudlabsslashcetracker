@@ -3,7 +3,7 @@ import mongodb from 'mongodb';
 import tls from 'tls';
 
 
-function ConnectToMongoDB(url, db_name, callback, hostname) {
+async function getMongoDB(url, db_name, callback, hostname) {
   const options = {
     sslValidate: true,
     checkServerIdentity: (name, cert) => tls.checkServerIdentity(hostname || name, cert),
@@ -15,17 +15,18 @@ function ConnectToMongoDB(url, db_name, callback, hostname) {
     reconnectTries: Number.MAX_VALUE
   };
 
-  mongodb.MongoClient.connect(url, options, (error, client) => {
-    assert.equal(null, error);
-
+  try {
+    const client = await mongodb.MongoClient.connect(url, options);
     const mongo_db = client.db(db_name);
-    if (mongo_db) {
-      callback(null, mongo_db, client);
-    } else {
-      callback('MongoDB database connection failed.', null, null);
+    if (!mongo_db) {
+      client.close();
+      throw new Error('MonogDB connection failed');
     }
-  });
+    return mongo_db
+  } catch (error) {
+    throw new Error(error);
+  }
 }
 
-export default ConnectToMongoDB;
+export default getMongoDB;
 
