@@ -8,7 +8,7 @@
  *   File provides functionality to update database for given exchange.
  */
 
-import { exchs_metadata_col } from '../utils/constants.mjs';
+import { exchs_metadata_coll } from '../utils/constants.mjs';
 import { getExchangeSchema, getExchCoinDataSchema } from './schemas.mjs';
 import {
   getUTCISOFormat,
@@ -68,8 +68,8 @@ function UpdateExchangeDataOnDB(db, exchange_name, ws_data_list) {
   // TODO I should call here function to get coins' supply.
 
   if (ws_data_list && ws_data_list.length > 0) {
-    const exchanges_col = db.collection(exchs_metadata_col);
-    updateExistingData(exchanges_col, exchange_name, ws_data_list);
+    const coll = db.collection(exchs_metadata_coll);
+    updateExistingData(coll, exchange_name, ws_data_list);
   }
 }
 
@@ -129,7 +129,7 @@ async function setupMongoDB(coll, exch_name) {
 // Arguments:
 // - db: MongoDB database.
 async function setupDB(db) {
-  const coll = db.collection(exchs_metadata_col);
+  const coll = db.collection(exchs_metadata_coll);
   const exchanges = getSupportedExchanges();
 
   await Promise.all(exchanges.map(async (exch) => setupMongoDB(coll, exch)));
