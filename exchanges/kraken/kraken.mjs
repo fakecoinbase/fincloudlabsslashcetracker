@@ -14,11 +14,7 @@ import WebSocket from 'ws';
 import kraken_data from './market.mjs';
 import { UpdateExchangeDataOnDB } from '../../db/update_db.mjs';
 import { getSupportedCoins } from '../../utils/supported_coins.mjs';
-import {
-  getUTCISOFormat,
-  HasKey,
-  Debug
-} from '../../utils/utils.mjs';
+import { hasKey, Debug } from '../../utils/utils.mjs';
 
 
 class Kraken {
@@ -130,21 +126,21 @@ class Kraken {
       }
 
       const supported_coins = getSupportedCoins(kraken_data.exchange_name);
-      if (!supported_coins || !HasKey(supported_coins, ticker)) {
+      if (!supported_coins || !hasKey(supported_coins, ticker)) {
         return null;
       }
 
       const market_data = ws_data[1];
-      if (HasKey(market_data, 'c') &&
-          HasKey(market_data, 'o') &&
-          HasKey(market_data, 'v')) {
+      if (hasKey(market_data, 'c') &&
+          hasKey(market_data, 'o') &&
+          hasKey(market_data, 'v')) {
         const coin_data = {
           ticker: String(ticker),
           market: String(market),
           price: Number(market_data.c[0]),
           open_price: Number(market_data.o[1]),
           volume24h: Math.round(Number(market_data.v[1])),
-          last_update: getUTCISOFormat()
+          last_update: new Date()
         };
 
         return coin_data;

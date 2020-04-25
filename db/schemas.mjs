@@ -8,7 +8,6 @@
  *   File provides exchanges schema's for MongoDB database.
  */
 
-import { getUTCISOFormat } from '../utils/utils.mjs';
 import { getSupportedCoins } from '../utils/supported_coins.mjs';
 
 
@@ -44,7 +43,7 @@ function getExchCoinDataSchema(coin_name, data = null) {
     volume24h: {},
     supply: 0,
     market_cap: 0,
-    last_update: getUTCISOFormat()
+    last_update: new Date()
   };
 
   if (data) {
@@ -84,7 +83,7 @@ function getExchangeSchema(exchange_name) {
   const exchange_schema = {
     _id: String(exchange_name),
     exchange: String(exchange_name),
-    last_update: getUTCISOFormat(),
+    last_update: new Date(),
     coins_metadata: getCoinsMetadata(exchange_name)
   };
 

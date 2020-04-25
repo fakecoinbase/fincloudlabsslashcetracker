@@ -9,16 +9,6 @@
  */
 
 
-// Function returns UTC date in ISO format (ISO 8601), which is always 24 or 27
-// characters long (YYYY-MM-DDTHH:mm:ss.sssZ). The timezone is always zero UTC
-// offset, as denoted by the suffix "Z".
-function getUTCISOFormat() {
-  const utc_iso_format = (new Date()).toISOString();
-  return utc_iso_format;
-}
-
-
-
 // Function calculates percentage change of two values (current and previous).
 //
 // Arguments:
@@ -60,7 +50,7 @@ function getPercentageChange(current, prev) {
 // - key: Provide key, which will be checked.
 //
 // Returns true if an object has 'key' property, otherwise false.
-function HasKey(obj, key) {
+function hasKey(obj, key) {
   const has = Object.prototype.hasOwnProperty;
   return has.call(obj, String(key));
 }
@@ -70,23 +60,23 @@ function HasKey(obj, key) {
 // Function just prints provided data in "[timestamp] error extra_data" format
 // using console.error synchronous function.
 function Debug(error, extra_data = '') {
-  const error_ts = '[' + getUTCISOFormat() + ']';
+  const utc_iso_format = (new Date()).toISOString();
+  const error_ts = '[' + utc_iso_format + ']';
   console.error(error_ts, error, extra_data);
 }
 
 
 
 // Returns a Promise that resolves after "ms" Milliseconds
-function Sleep(ms) {
+function sleep(ms) {
   return new Promise((res) => setTimeout(res, ms));
 }
 
 
 export {
-  getUTCISOFormat,
   getPercentageChange,
-  HasKey,
+  hasKey,
   Debug,
-  Sleep
+  sleep
 };
 

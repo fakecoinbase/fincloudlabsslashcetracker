@@ -15,11 +15,7 @@ import coinbase_pro_node from 'coinbase-pro-node';
 
 import coinbase_data from './market.mjs';
 import { UpdateExchangeDataOnDB } from '../../db/update_db.mjs';
-import {
-  getUTCISOFormat,
-  HasKey,
-  Debug,
-} from '../../utils/utils.mjs';
+import { hasKey, Debug } from '../../utils/utils.mjs';
 
 const {CoinbasePro, WebSocketChannelName, WebSocketEvent} = coinbase_pro_node;
 
@@ -75,12 +71,12 @@ class CoinbaseProClass {
   static VerifyWebsocketData(ws_data) {
     // Check if expected keys/properties are provided. I check only properties,
     // which are used in the project.
-    if (ws_data && HasKey(ws_data, 'type') &&
+    if (ws_data && hasKey(ws_data, 'type') &&
         ws_data.type === 'ticker' &&
-        HasKey(ws_data, 'product_id') &&
-        HasKey(ws_data, 'price') &&
-        HasKey(ws_data, 'open_24h') &&
-        HasKey(ws_data, 'volume_24h') &&
+        hasKey(ws_data, 'product_id') &&
+        hasKey(ws_data, 'price') &&
+        hasKey(ws_data, 'open_24h') &&
+        hasKey(ws_data, 'volume_24h') &&
         ws_data.product_id && ws_data.price) {
       const product_id = String(ws_data.product_id);
       const ticker = String((product_id.split('-'))[0]);
@@ -92,7 +88,7 @@ class CoinbaseProClass {
         price: Number(ws_data.price),
         open_price: Number(ws_data.open_24h),
         volume24h: Number(ws_data.volume_24h),
-        last_update: getUTCISOFormat()
+        last_update: new Date()
       };
 
       return coin_data;

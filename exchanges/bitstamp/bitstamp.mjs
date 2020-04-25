@@ -9,18 +9,12 @@
  *   Bitstamp) from Bitstamp exchange.
  */
 
-import request from 'request';
 import async from 'async';
-
+import axios from 'axios';
 import bitstamp_data from './market.mjs';
 import { UpdateExchangeDataOnDB } from '../../db/update_db.mjs';
 import { getSupportedCoins } from '../../utils/supported_coins.mjs';
-import {
-  getUTCISOFormat,
-  HasKey,
-  Debug,
-  Sleep
-} from '../../utils/utils.mjs';
+import { hasKey, Debug, sleep } from '../../utils/utils.mjs';
 
 
 // WARNING: Rate Limits: Do not make more than 600 requests per 10 minutes,
@@ -44,7 +38,7 @@ class Bitstamp {
   async run() {
     while (1) {
       this.TrackBitstampCoins();
-      await Sleep(this.request_interval_ms);
+      await sleep(this.request_interval_ms);
     }
   }
 
@@ -63,23 +57,20 @@ class Bitstamp {
 
   getBitstampCoinData(currency, callback) {
     const url = this.bitstamp_rest_api + currency.pairs;
-    request(url, {json: true}, (error, response, body) => {
-      if (!error && response.statusCode === 200) {
-        const currency_data = this.VerifyReceivedData(body, currency);
-        if (currency_data) {
+    axios.get(url)
+      .then((response) => {
+        if (response && response.data) {
           // Note that this is an async function.
-          UpdateExchangeDataOnDB(this.db, this.exchange_name, [currency_data]);
+          UpdateExchangeDataOnDB(this.db, this.exchange_name, [response.data]);
+        } else {
+          // I will pass 0 as I do not need to get a list of currency_data at
+          // the end in async.parallel.
+          callback(null, 0);
         }
-
-        // I will pass 0 as I do not need to get a list of currency_data at
-        // the end in async.parallel.
-        callback(null, 0);
-      } else if (error) {
+      })
+      .catch ((error) => {
         callback(error, null);
-      } else {
-        callback('Bitstamp response error ' + response.statusCode, null);
-      }
-    });
+      });
   }
 
 
@@ -94,14 +85,14 @@ class Bitstamp {
     // Check if expected keys/properties are provided.
     // Note that we check only properties, which are used in project.
     if (resp_data &&
-        HasKey(resp_data, 'last') &&
-        HasKey(resp_data, 'volume') &&
-        HasKey(resp_data, 'open') &&
+        hasKey(resp_data, 'last') &&
+        hasKey(resp_data, 'volume') &&
+        hasKey(resp_data, 'open') &&
         isNaN(resp_data.last) === false &&
         isNaN(resp_data.volume) === false &&
         isNaN(resp_data.open) === false) {
       const supported_coins = getSupportedCoins(this.exchange_name);
-      if (!supported_coins || !HasKey(supported_coins, currency.ticker)) {
+      if (!supported_coins || !hasKey(supported_coins, currency.ticker)) {
         return null;
       }
 
@@ -111,7 +102,7 @@ class Bitstamp {
         price: Number(resp_data.last),
         open_price: Number(resp_data.open),
         volume24h: Math.round(Number(resp_data.volume)),
-        last_update: getUTCISOFormat()
+        last_update: new Date()
       };
 
       return coin_data;

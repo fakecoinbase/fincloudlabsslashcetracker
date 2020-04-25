@@ -11,10 +11,9 @@
 import { exchs_metadata_coll } from '../utils/constants.mjs';
 import { getExchangeSchema, getExchCoinDataSchema } from './schemas.mjs';
 import {
-  getUTCISOFormat,
   getPercentageChange,
   Debug,
-  HasKey
+  hasKey
 } from '../utils/utils.mjs';
 import {
   getSupportedCoins,
@@ -37,7 +36,7 @@ function updateExistingData(exchanges_col, exchange_name, ws_data_list) {
 
     coin_data['change24h'] = getPercentageChange(coin_data.price, coin_data.open_price);
 
-    update['last_update'] = getUTCISOFormat();
+    update['last_update'] = new Date();
     update[embedded_path + '.price.' + market] = coin_data.price;
     update[embedded_path + '.open_price.' + market] = coin_data.open_price;
     update[embedded_path + '.volume24h.' + market] = coin_data.volume24h;
@@ -91,7 +90,7 @@ async function setupMongoDB(coll, exch_name) {
         const update = {};
         // TODO What if a coin was removed from the given exchange?
         for (const [ticker, coin_name] of Object.entries(exch_coins)) {
-          if (!HasKey(found.coins_metadata, ticker)) {
+          if (!hasKey(found.coins_metadata, ticker)) {
             const embedded_path = 'coins_metadata.' + ticker;
             update[embedded_path] = getExchCoinDataSchema(coin_name);
           }

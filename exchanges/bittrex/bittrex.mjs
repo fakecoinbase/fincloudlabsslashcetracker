@@ -15,12 +15,7 @@ import zlib from 'zlib';
 
 import { getSupportedCoins } from '../../utils/supported_coins.mjs';
 import { UpdateExchangeDataOnDB } from '../../db/update_db.mjs';
-import {
-  getUTCISOFormat,
-  HasKey,
-  Debug,
-  Sleep
-} from '../../utils/utils.mjs';
+import { hasKey, Debug, sleep } from '../../utils/utils.mjs';
 
 
 class Bittrex {
@@ -43,7 +38,7 @@ class Bittrex {
       } else {
         this.ClientCall();
       }
-      await Sleep(this.ws_recall_interval_ms);
+      await sleep(this.ws_recall_interval_ms);
     }
   }
 
@@ -83,7 +78,7 @@ class Bittrex {
   ListenWebsocket() {
     this.client.serviceHandlers.messageReceived = (message) => {
       const data = jsonic(message.utf8Data);
-      if (HasKey(data, 'R') && data.R) {
+      if (hasKey(data, 'R') && data.R) {
         const b64 = data.R;
         const raw = new Buffer.from(b64, 'base64');
         zlib.inflateRaw(raw, (error, inflated) => {
@@ -152,15 +147,15 @@ class Bittrex {
   // Returns null if verification failed otherwise an array of verified summary
   // data and data contains market name, volume, last price and previous day price.
   VerifyReceivedData(bittrex_data) {
-    if (bittrex_data && HasKey(bittrex_data, 's') && bittrex_data.s) {
+    if (bittrex_data && hasKey(bittrex_data, 's') && bittrex_data.s) {
       const market_summary = [];
       const summary_data = bittrex_data.s;
       for (let i = 0; i < summary_data.length; i++) {
         const market_data = summary_data[i];
-        if (HasKey(market_data, 'M') &&
-            HasKey(market_data, 'm') &&
-            HasKey(market_data, 'l') &&
-            HasKey(market_data, 'PD') &&
+        if (hasKey(market_data, 'M') &&
+            hasKey(market_data, 'm') &&
+            hasKey(market_data, 'l') &&
+            hasKey(market_data, 'PD') &&
             isNaN(market_data.V) === false &&
             isNaN(market_data.l) === false &&
             isNaN(market_data.PD) === false) {
@@ -169,14 +164,14 @@ class Bittrex {
           const market = market_name.split('-')[0];
 
           const supported_coins = getSupportedCoins(this.exchange_name);
-          if (supported_coins && HasKey(supported_coins, ticker)) {
+          if (supported_coins && hasKey(supported_coins, ticker)) {
             const coin_data = {
               ticker: String(ticker),
               market: String(market),
               price: Number(market_data.l),
               open_price: Number(market_data.PD),
               volume24h: Math.round(Number(market_data.m)),
-              last_update: getUTCISOFormat()
+              last_update: new Date()
             };
             market_summary.push(coin_data);
           }

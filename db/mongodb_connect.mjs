@@ -9,10 +9,7 @@ async function getMongoDB(url, db_name, callback, hostname) {
     checkServerIdentity: (name, cert) => tls.checkServerIdentity(hostname || name, cert),
     poolSize: 64,
     useNewUrlParser: true,
-    useUnifiedTopology: true,
-    autoReconnect: true,
-    reconnectInterval: 1000,
-    reconnectTries: Number.MAX_VALUE
+    useUnifiedTopology: true
   };
 
   try {
