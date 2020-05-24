@@ -1,6 +1,6 @@
 {
   "name": "cetracker",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Cryptocurrency Exchanges Tracker",
   "main": "run_tracker.mjs",
   "author": "Artiom Baloian",
@@ -10,7 +10,6 @@
     "dev": "DEBUG=cetracker:* node --experimental-modules run_tracker.mjs"
   },
   "dependencies": {
-    "async": "^3.1.0",
     "axios": "^0.19.2",
     "coinbase-pro-node": "^2.1.0",
     "jsonic": "^0.3.1",

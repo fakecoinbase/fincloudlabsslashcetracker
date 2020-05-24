@@ -9,7 +9,6 @@
  *   Bitstamp) from Bitstamp exchange.
  */
 
-import async from 'async';
 import axios from 'axios';
 import bitstamp_data from './market.mjs';
 import { UpdateExchangeDataOnDB } from '../../db/update_db.mjs';
@@ -31,46 +30,43 @@ class Bitstamp {
     this.request_interval_ms = 8000;
     this.per_request_interval_ms = 200;
     this.exchange_name = 'bitstamp';
-    this.bitstamp_rest_api = 'https://www.bitstamp.net/api/v2/ticker/';
+    this.api = axios.create({baseURL: 'https://www.bitstamp.net/api/v2/ticker'});
   }
 
 
   async run() {
     while (1) {
-      this.TrackBitstampCoins();
+      try {
+        await this.trackBitstampCoins();
+      } catch (error) {
+        Debug(error);
+      }
       await sleep(this.request_interval_ms);
     }
   }
 
 
-  TrackBitstampCoins() {
-    async.eachSeries(bitstamp_data, (currency, next) => {
-      setTimeout(() => this.getBitstampCoinData(currency, (error) => {
-        if (error) {
-          Debug(error);
-        }
-        next();
-      }), this.per_request_interval_ms);
-    }, () => {});
+  async trackBitstampCoins() {
+    for (let i = 0; i < bitstamp_data.length; i++) {
+      let coin_data = await this.getBitstampCoinData(bitstamp_data[i]);
+      coin_data = this.verifyReceivedData(coin_data, bitstamp_data[i]);
+      if (coin_data) {
+        UpdateExchangeDataOnDB(this.db, this.exchange_name, [coin_data]);
+      }
+      await sleep(this.per_request_interval_ms);
+    }
   }
 
 
-  getBitstampCoinData(currency, callback) {
-    const url = this.bitstamp_rest_api + currency.pairs;
-    axios.get(url)
-      .then((response) => {
-        if (response && response.data) {
-          // Note that this is an async function.
-          UpdateExchangeDataOnDB(this.db, this.exchange_name, [response.data]);
-        } else {
-          // I will pass 0 as I do not need to get a list of currency_data at
-          // the end in async.parallel.
-          callback(null, 0);
-        }
-      })
-      .catch ((error) => {
-        callback(error, null);
-      });
+  async getBitstampCoinData(currency) {
+    try {
+      const response = await this.api.get(`/${currency.pairs}`);
+      if (response && response.data) return response.data;
+      return null;
+    } catch (error) {
+      Debug(error);
+      return null;
+    }
   }
 
 
@@ -81,7 +77,7 @@ class Bitstamp {
   // - resp_data: Data received from Bitstamp REST API.
   //
   // Returns null if verification failed otherwise verified data.
-  VerifyReceivedData(resp_data, currency) {
+  verifyReceivedData(resp_data, currency) {
     // Check if expected keys/properties are provided.
     // Note that we check only properties, which are used in project.
     if (resp_data &&
@@ -96,7 +92,7 @@ class Bitstamp {
         return null;
       }
 
-      const coin_data = {
+      return {
         ticker: currency.ticker,
         market: currency.market,
         price: Number(resp_data.last),
@@ -104,8 +100,6 @@ class Bitstamp {
         volume24h: Math.round(Number(resp_data.volume)),
         last_update: new Date()
       };
-
-      return coin_data;
     }
 
     return null;
@@ -113,4 +107,3 @@ class Bitstamp {
 }
 
 export default Bitstamp;
-

@@ -62,13 +62,13 @@ function updateExistingData(exchanges_col, exchange_name, ws_data_list) {
 // Arguments:
 // - db: MongoDB database.
 // - exchange_name: Exchange name.
-// - ws_data_list: Exchange data received by websocket or REST API.
-function UpdateExchangeDataOnDB(db, exchange_name, ws_data_list) {
-  // TODO I should call here function to get coins' supply.
+// - data_list: Exchange data received by websocket or REST API.
+function UpdateExchangeDataOnDB(db, exchange_name, data_list) {
+  // TODO I should invoke a function to get coins' supply.
 
-  if (ws_data_list && ws_data_list.length > 0) {
+  if (data_list && data_list.length > 0) {
     const coll = db.collection(exchs_metadata_coll);
-    updateExistingData(coll, exchange_name, ws_data_list);
+    updateExistingData(coll, exchange_name, data_list);
   }
 }
 
