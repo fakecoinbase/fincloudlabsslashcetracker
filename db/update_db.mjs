@@ -63,7 +63,7 @@ function updateExistingData(exchanges_col, exchange_name, ws_data_list) {
 // - db: MongoDB database.
 // - exchange_name: Exchange name.
 // - data_list: Exchange data received by websocket or REST API.
-function UpdateExchangeDataOnDB(db, exchange_name, data_list) {
+function updateExchangeDataOnDB(db, exchange_name, data_list) {
   // TODO I should invoke a function to get coins' supply.
 
   if (data_list && data_list.length > 0) {
@@ -134,5 +134,5 @@ async function setupDB(db) {
   await Promise.all(exchanges.map(async (exch) => setupMongoDB(coll, exch)));
 }
 
-export { setupDB, UpdateExchangeDataOnDB };
+export { setupDB, updateExchangeDataOnDB };
 

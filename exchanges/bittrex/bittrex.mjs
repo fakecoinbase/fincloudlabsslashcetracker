@@ -14,7 +14,7 @@ import jsonic from 'jsonic';
 import zlib from 'zlib';
 
 import { getSupportedCoins } from '../../utils/supported_coins.mjs';
-import { UpdateExchangeDataOnDB } from '../../db/update_db.mjs';
+import { updateExchangeDataOnDB } from '../../db/update_db.mjs';
 import { hasKey, Debug, sleep } from '../../utils/utils.mjs';
 
 
@@ -87,7 +87,7 @@ class Bittrex {
             const coins_data = this.VerifyReceivedData(json_data);
             if (coins_data) {
               // Note that this is an async function.
-              UpdateExchangeDataOnDB(this.db, this.exchange_name, coins_data);
+              updateExchangeDataOnDB(this.db, this.exchange_name, coins_data);
             }
           }
         }); // End of zlib.inflateRaw

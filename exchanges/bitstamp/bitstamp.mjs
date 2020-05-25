@@ -11,7 +11,7 @@
 
 import axios from 'axios';
 import bitstamp_data from './market.mjs';
-import { UpdateExchangeDataOnDB } from '../../db/update_db.mjs';
+import { updateExchangeDataOnDB } from '../../db/update_db.mjs';
 import { getSupportedCoins } from '../../utils/supported_coins.mjs';
 import { hasKey, Debug, sleep } from '../../utils/utils.mjs';
 
@@ -51,7 +51,7 @@ class Bitstamp {
       let coin_data = await this.getBitstampCoinData(bitstamp_data[i]);
       coin_data = this.verifyReceivedData(coin_data, bitstamp_data[i]);
       if (coin_data) {
-        UpdateExchangeDataOnDB(this.db, this.exchange_name, [coin_data]);
+        updateExchangeDataOnDB(this.db, this.exchange_name, [coin_data]);
       }
       await sleep(this.per_request_interval_ms);
     }

@@ -48,7 +48,7 @@ const argv = stdio.getopt({
 //
 // Arguments:
 // - db: MongoDB database.
-function RunCoinsTracking(db) {
+function runCoinsTracking(db) {
   // Bellow objects are going to run/listen always in background and store
   // tracked data on the MongoDB database.
 
@@ -78,7 +78,7 @@ async function main() {
   try {
     const db = await getMongoDB(argv.db_url, argv.db_name);
     await setupDB(db);
-    RunCoinsTracking(db);
+    runCoinsTracking(db);
   } catch (error) {
     Debug(error);
   }

@@ -11,7 +11,7 @@
 
 import kraken_data from './market.mjs';
 import ReconnectingWebsocket from '../../utils/reconnecting_websocket.mjs';
-import { UpdateExchangeDataOnDB } from '../../db/update_db.mjs';
+import { updateExchangeDataOnDB } from '../../db/update_db.mjs';
 import { getSupportedCoins } from '../../utils/supported_coins.mjs';
 import { hasKey, Debug } from '../../utils/utils.mjs';
 
@@ -48,7 +48,7 @@ class Kraken {
     ws_data = verifyWebsocketData(ws_data);
     if (ws_data) {
       // Note that this is an async function.
-      UpdateExchangeDataOnDB(db, kraken_data.exchange_name, [ws_data]);
+      updateExchangeDataOnDB(db, kraken_data.exchange_name, [ws_data]);
     }
   }
 }

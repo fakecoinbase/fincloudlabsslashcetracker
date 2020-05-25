@@ -8,7 +8,7 @@ import { Debug } from './utils.mjs';
 // Arguments:
 // -url: Websocket URL.
 // -request_msg: A message to be sent just after the connection.
-// -callback: A function will be invoked after receving a websocket data.
+// -callback: A function will be invoked after receiving a websocket data.
 // -options: An object with following properties:
 //  {
 //    reconnect_interval: <reconnecting interval in ms,
@@ -31,7 +31,6 @@ class ReconnectingWebsocket {
 
   connect() {
     const ws = new WebSocket(this.url);
-
     ws.on('open', () => {
       if (this.request_msg) {
         try {

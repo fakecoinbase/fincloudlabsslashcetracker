@@ -11,90 +11,84 @@
  *   and trades.
  */
 
-import coinbase_pro_node from 'coinbase-pro-node';
-
+import ReconnectingWebsocket from '../../utils/reconnecting_websocket.mjs';
 import coinbase_data from './market.mjs';
-import { UpdateExchangeDataOnDB } from '../../db/update_db.mjs';
+import { updateExchangeDataOnDB } from '../../db/update_db.mjs';
 import { hasKey, Debug } from '../../utils/utils.mjs';
 
-const {CoinbasePro, WebSocketChannelName, WebSocketEvent} = coinbase_pro_node;
-
-class CoinbaseProClass {
+class CoinbasePro {
   constructor(db) {
     this.db = db;
-    this.reconnect_interval_ms = 5000;
     this.request_msg = {
-      name: WebSocketChannelName.TICKER,
-      product_ids: coinbase_data.product_id,
+      type: 'subscribe',
+      channels: [{name: 'ticker', product_ids: coinbase_data.product_id}]
     };
-    this.client = new CoinbasePro();
-    this.init();
   }
 
   run() {
-    this.ListenWebsocket();
+    this.connect();
   }
 
-  init() {
-    this.client.ws.on(WebSocketEvent.ON_OPEN, () => {
-      this.client.ws.subscribe([this.request_msg]);
-    });
-
-    this.client.ws.on(WebSocketEvent.ON_ERROR, (error) => {
-      Debug('Coinbase Pro websocket error:', error.message);
-    });
-
-    this.client.ws.on(WebSocketEvent.ON_MESSAGE_TICKER, (ws_data) => {
-      ws_data = CoinbaseProClass.VerifyWebsocketData(ws_data);
-      if (ws_data) {
-        UpdateExchangeDataOnDB(this.db, coinbase_data.exchange_name, [ws_data]);
-      }
-    });
-
-    this.client.ws.on(WebSocketEvent.ON_CLOSE, () => {
-      Debug('Coinbase Pro websocket was closed, it will reconnect again');
-    });
+  connect() {
+    const socket = new ReconnectingWebsocket(
+      'wss://ws-feed.pro.coinbase.com',
+      this.request_msg,
+      CoinbasePro.processData,
+      {db: this.db, exchange: coinbase_data.exchange_name}
+    );
+    socket.run();
   }
 
-  async ListenWebsocket() {
-    this.client.ws.connect({connectionTimeout: this.reconnect_interval_ms, debug: false});
-  }
-
-  // Function verifies websocket data received from Coinbase Pro websocket.
-  // It checks if received data contains corresponding properties and they
-  // are not null.
-  //
-  // Arguments:
-  // - ws_data: Websocket data received from Coinbase Pro.
-  //
-  // Returns null if verification failed otherwise returns verified data.
-  static VerifyWebsocketData(ws_data) {
-    // Check if expected keys/properties are provided. I check only properties,
-    // which are used in the project.
-    if (ws_data && hasKey(ws_data, 'type') &&
-        ws_data.type === 'ticker' &&
-        hasKey(ws_data, 'product_id') &&
-        hasKey(ws_data, 'price') &&
-        hasKey(ws_data, 'open_24h') &&
-        hasKey(ws_data, 'volume_24h') &&
-        ws_data.product_id && ws_data.price) {
-      const product_id = String(ws_data.product_id);
-      const ticker = String((product_id.split('-'))[0]);
-      const market = String((product_id.split('-'))[1]);
-
-      const coin_data = {
-        ticker: String(ticker),
-        market: String(market),
-        price: Number(ws_data.price),
-        open_price: Number(ws_data.open_24h),
-        volume24h: Number(ws_data.volume_24h),
-        last_update: new Date()
-      };
-
-      return coin_data;
+  static processData(ws_data, db) {
+    try {
+      ws_data = JSON.parse(ws_data);
+    } catch (error) {
+      Debug(error);
+      return;
     }
-    return null;
+    ws_data = verifyWebsocketData(ws_data);
+    if (ws_data) {
+      updateExchangeDataOnDB(db, coinbase_data.exchange_name, [ws_data]);
+    }
   }
 }
 
-export default CoinbaseProClass;
+
+// Function verifies websocket data received from Coinbase Pro websocket.
+// It checks if received data contains corresponding properties and they
+// are not null.
+//
+// Arguments:
+// - ws_data: Websocket data received from Coinbase Pro.
+//
+// Returns null if verification failed otherwise returns verified data.
+function verifyWebsocketData(ws_data) {
+  // Check if expected keys/properties are provided. I check only properties,
+  // which are used in the project.
+  if (ws_data && hasKey(ws_data, 'type') &&
+      ws_data.type === 'ticker' &&
+      hasKey(ws_data, 'product_id') &&
+      hasKey(ws_data, 'price') &&
+      hasKey(ws_data, 'open_24h') &&
+      hasKey(ws_data, 'volume_24h') &&
+      ws_data.product_id && ws_data.price) {
+    const product_id = String(ws_data.product_id);
+    const ticker = String((product_id.split('-'))[0]);
+    const market = String((product_id.split('-'))[1]);
+
+    const coin_data = {
+      ticker: String(ticker),
+      market: String(market),
+      price: Number(ws_data.price),
+      open_price: Number(ws_data.open_24h),
+      volume24h: Number(ws_data.volume_24h),
+      last_update: new Date()
+    };
+
+    return coin_data;
+  }
+
+  return null;
+}
+
+export default CoinbasePro;
