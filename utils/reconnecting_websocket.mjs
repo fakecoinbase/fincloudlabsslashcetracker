@@ -23,6 +23,7 @@ class ReconnectingWebsocket {
     this.request_msg = request_msg;
     this.callback = callback;
     this.options = parseOptions(options);
+    this.timer_id = null;
   }
 
   run() {
@@ -32,6 +33,11 @@ class ReconnectingWebsocket {
   connect() {
     const ws = new WebSocket(this.url);
     ws.on('open', () => {
+      if (this.timer_id) {
+        clearTimeout(this.timer_id);
+        this.timer_id = null;
+      }
+
       if (this.request_msg) {
         try {
           ws.send(JSON.stringify(this.request_msg));
@@ -50,13 +56,15 @@ class ReconnectingWebsocket {
         const msg = 'Websocket was closed, it will reconnect again';
         Debug(`${this.options.exchange} ${msg}`);
       }
-      setTimeout(() => { this.connect(); }, this.options.reconnect_interval);
+
+      if (!this.timer_id) {
+        this.timer_id = setTimeout(() => { this.connect(); },
+          this.options.reconnect_interval);
+      }
     });
 
     ws.on('error', (error) => {
       if (this.options.debug) Debug(error);
-      if (ws) ws.close();
-      setTimeout(() => { this.connect(); }, this.options.reconnect_interval);
     });
   }
 }

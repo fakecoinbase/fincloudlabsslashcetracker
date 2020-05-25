@@ -1,6 +1,6 @@
 {
   "name": "cetracker",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Cryptocurrency Exchanges Tracker",
   "main": "run_tracker.mjs",
   "author": "Artiom Baloian",
