@@ -9,9 +9,8 @@
  *   provided by Kraken Pro) using Kraken Pro's Websocket Feed.
  */
 
-import WebSocket from 'ws';
-
 import kraken_data from './market.mjs';
+import ReconnectingWebsocket from '../../utils/reconnecting_websocket.mjs';
 import { UpdateExchangeDataOnDB } from '../../db/update_db.mjs';
 import { getSupportedCoins } from '../../utils/supported_coins.mjs';
 import { hasKey, Debug } from '../../utils/utils.mjs';
@@ -35,120 +34,85 @@ class Kraken {
     };
   }
 
-
   run() {
-    this.ListenWebsocket();
+    const socket = new ReconnectingWebsocket(
+      'wss://ws.kraken.com',
+      this.request_msg,
+      Kraken.processData,
+      {db: this.db, exchange: kraken_data.exchange_name}
+    );
+    socket.run();
   }
 
+  static processData(ws_data, db) {
+    ws_data = verifyWebsocketData(ws_data);
+    if (ws_data) {
+      // Note that this is an async function.
+      UpdateExchangeDataOnDB(db, kraken_data.exchange_name, [ws_data]);
+    }
+  }
+}
 
-  ReconnectSocket() {
-    this.ListenWebsocket();
+
+// Function verifies websocket data received from Kraken websocket.
+// It checks if received data contains corresponding properties and they
+// are not null.
+//
+// Arguments:
+// - ws_data: Websocket data received from Kraken.
+//
+// Returns null if verification failed, otherwise returns verified data.
+function verifyWebsocketData(ws_data) {
+  try {
+    ws_data = JSON.parse(ws_data);
+  } catch (e) {
+    Debug(e);
+    return null;
   }
 
-
-  // Function listens Kraken Pro's Websocket Feed, particularly the ticker
-  // channel, calls UpdateKrakenCoinsStateInDB() function in order to update
-  // coins current state.
-  // Note that function is going to run/listen always in background, if any
-  // errors occur It won't handle it.
-  ListenWebsocket() {
-    let ws = new WebSocket('wss://ws.kraken.com');
-
-    ws.on('open', () => {
-      ws.send(JSON.stringify(this.request_msg));
-    });
-
-
-    ws.on('message', (ws_data) => {
-      ws_data = Kraken.VerifyWebsocketData(ws_data);
-      if (ws_data) {
-        // Note that this is an async function.
-        UpdateExchangeDataOnDB(this.db, kraken_data.exchange_name, [ws_data]);
-      }
-    });
-
-
-    ws.on('close', () => {
-      ws = null;
-      const reconnect_interval_ms = 10000;
-      const msg = 'Kraken socket was closed, it will reconnect again';
-      Debug(msg);
-      setTimeout(() => { this.ReconnectSocket(); }, reconnect_interval_ms);
-    });
-
-
-    ws.on('error', (error) => {
-      Debug(error);
-      if (ws) {
-        ws.close();
-      }
-      ws = null;
-      const reconnect_interval_ms = 10000;
-      setTimeout(() => { this.ReconnectSocket(); }, reconnect_interval_ms);
-    });
-  }
-
-
-  // Function verifies websocket data received from Kraken websocket.
-  // It checks if received data contains corresponding properties and they
-  // are not null.
-  //
-  // Arguments:
-  // - ws_data: Websocket data received from Kraken.
-  //
-  // Returns null if verification failed, otherwise returns verified data.
-  static VerifyWebsocketData(ws_data) {
-    try {
-      ws_data = JSON.parse(ws_data);
-    } catch (e) {
-      Debug(e);
+  // Check if expected keys/properties are provided. I check only properties,
+  // which are used in the project
+  if (Array.isArray(ws_data) && ws_data.length >= 4 &&
+      ws_data[1] && ws_data[3]) {
+    let ticker = ws_data[3].split('/')[0];
+    const market = ws_data[3].split('/')[1];
+    // For now I track only USD market.
+    if (market !== 'USD') {
       return null;
     }
 
-    // Check if expected keys/properties are provided. I check only properties,
-    // which are used in the project
-    if (Array.isArray(ws_data) && ws_data.length >= 4 &&
-        ws_data[1] && ws_data[3]) {
-      let ticker = ws_data[3].split('/')[0];
-      const market = ws_data[3].split('/')[1];
-      // For now I track only USD market.
-      if (market !== 'USD') {
-        return null;
-      }
-
-      // Few pairs have supported aliases.
-      if (ticker === 'XBT') {
-        ticker = 'BTC';
-      } else if (ticker === 'XDG') {
-        ticker = 'DOGE';
-      } else if (ticker === 'XTR') {
-        ticker = 'XLM';
-      }
-
-      const supported_coins = getSupportedCoins(kraken_data.exchange_name);
-      if (!supported_coins || !hasKey(supported_coins, ticker)) {
-        return null;
-      }
-
-      const market_data = ws_data[1];
-      if (hasKey(market_data, 'c') &&
-          hasKey(market_data, 'o') &&
-          hasKey(market_data, 'v')) {
-        const coin_data = {
-          ticker: String(ticker),
-          market: String(market),
-          price: Number(market_data.c[0]),
-          open_price: Number(market_data.o[1]),
-          volume24h: Math.round(Number(market_data.v[1])),
-          last_update: new Date()
-        };
-
-        return coin_data;
-      }
+    // Few pairs have supported aliases.
+    if (ticker === 'XBT') {
+      ticker = 'BTC';
+    } else if (ticker === 'XDG') {
+      ticker = 'DOGE';
+    } else if (ticker === 'XTR') {
+      ticker = 'XLM';
     }
 
-    return null;
+    const supported_coins = getSupportedCoins(kraken_data.exchange_name);
+    if (!supported_coins || !hasKey(supported_coins, ticker)) {
+      return null;
+    }
+
+    const market_data = ws_data[1];
+    if (hasKey(market_data, 'c') &&
+        hasKey(market_data, 'o') &&
+        hasKey(market_data, 'v')) {
+      const coin_data = {
+        ticker: String(ticker),
+        market: String(market),
+        price: Number(market_data.c[0]),
+        open_price: Number(market_data.o[1]),
+        volume24h: Math.round(Number(market_data.v[1])),
+        last_update: new Date()
+      };
+
+      return coin_data;
+    }
   }
+
+  return null;
 }
 
 export default Kraken;
