@@ -8,7 +8,7 @@
  *   File provides functionality to update database for given exchange.
  */
 
-import { exchs_metadata_coll } from '../utils/constants.mjs';
+import { exchs_market_data_coll } from '../utils/constants.mjs';
 import { getExchangeSchema, getExchCoinDataSchema } from './schemas.mjs';
 import {
   getPercentageChange,
@@ -67,7 +67,7 @@ function updateExchangeDataOnDB(db, exchange_name, data_list) {
   // TODO I should invoke a function to get coins' supply.
 
   if (data_list && data_list.length > 0) {
-    const coll = db.collection(exchs_metadata_coll);
+    const coll = db.collection(exchs_market_data_coll);
     updateExistingData(coll, exchange_name, data_list);
   }
 }
@@ -128,7 +128,7 @@ async function setupMongoDB(coll, exch_name) {
 // Arguments:
 // - db: MongoDB database.
 async function setupDB(db) {
-  const coll = db.collection(exchs_metadata_coll);
+  const coll = db.collection(exchs_market_data_coll);
   const exchanges = getSupportedExchanges();
 
   await Promise.all(exchanges.map(async (exch) => setupMongoDB(coll, exch)));
