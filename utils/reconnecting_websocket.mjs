@@ -33,6 +33,10 @@ class ReconnectingWebsocket {
   connect() {
     const ws = new WebSocket(this.url);
     ws.on('open', () => {
+      if (this.options.debug) {
+        Debug(`${this.options.exchange} websocket is opened`);
+      }
+
       if (this.timer_id) {
         clearTimeout(this.timer_id);
         this.timer_id = null;
@@ -52,8 +56,8 @@ class ReconnectingWebsocket {
     });
 
     ws.on('close', () => {
-      if (this.options.debug) {
-        const msg = 'Websocket was closed, it will reconnect again';
+      if (this.options.debug && !this.timer_id) {
+        const msg = 'websocket was closed, it will reconnect again';
         Debug(`${this.options.exchange} ${msg}`);
       }
 
