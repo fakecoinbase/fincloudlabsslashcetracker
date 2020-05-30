@@ -37,15 +37,13 @@ class ReconnectingWebsocket {
         Debug(`${this.options.exchange} websocket is opened`);
       }
 
-      if (this.timer_id) {
-        clearTimeout(this.timer_id);
-        this.timer_id = null;
-      }
+      this.clearTimer();
 
       if (this.request_msg) {
         try {
           ws.send(JSON.stringify(this.request_msg));
         } catch (error) {
+          // TODO should I reconnect in this case?
           if (this.options.debug) Debug(error);
         }
       }
@@ -61,15 +59,29 @@ class ReconnectingWebsocket {
         Debug(`${this.options.exchange} ${msg}`);
       }
 
-      if (!this.timer_id) {
-        this.timer_id = setTimeout(() => { this.connect(); },
-          this.options.reconnect_interval);
-      }
+      this.setTimer();
     });
 
     ws.on('error', (error) => {
       if (this.options.debug) Debug(error);
+      if (ws) ws.close();
+      this.clearTimer();
+      this.setTimer();
     });
+  }
+
+  setTimer() {
+    if (!this.timer_id) {
+      this.timer_id = setTimeout(() => { this.connect(); },
+        this.options.reconnect_interval);
+    }
+  }
+
+  clearTimer() {
+    if (this.timer_id) {
+      clearTimeout(this.timer_id);
+      this.timer_id = null;
+    }
   }
 }
 
