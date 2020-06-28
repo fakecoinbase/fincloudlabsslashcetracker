@@ -1,5 +1,5 @@
 /**
- * db/update_db.mjs
+ * db/update_db.ts
  *
  * Copyright (c) 2019, Artiom Baloian
  * All rights reserved.
@@ -8,17 +8,17 @@
  *   File provides functionality to update database for given exchange.
  */
 
-import { exchs_market_data_coll } from '../utils/constants.mjs';
-import { getExchangeSchema, getExchCoinDataSchema } from './schemas.mjs';
+import { exchs_market_data_coll } from '../utils/constants';
+import { getExchangeSchema, getExchCoinDataSchema } from './schemas';
 import {
   getPercentageChange,
   Debug,
   hasKey
-} from '../utils/utils.mjs';
+} from '../utils/utils';
 import {
   getSupportedCoins,
   getSupportedExchanges
-} from '../utils/supported_coins.mjs';
+} from '../utils/supported_coins';
 
 
 // Function updates already existing on the database exchange data.
@@ -89,12 +89,10 @@ async function setupMongoDB(coll, exch_name) {
       } else if (found) {
         const update = {};
         // TODO What if a coin was removed from the given exchange?
-        for (const [ticker, coin_name] of Object.entries(exch_coins)) {
-          if (!hasKey(found.coins_metadata, ticker)) {
-            const embedded_path = 'coins_metadata.' + ticker;
-            update[embedded_path] = getExchCoinDataSchema(coin_name);
-          }
-        }
+        Object.keys(exch_coins).forEach(ticker => {
+          const embedded_path = 'coins_metadata.' + ticker;
+          update[embedded_path] = getExchCoinDataSchema(exch_coins[ticker]);
+        });
 
         if (Object.keys(update).length > 0) {
           coll.updateOne(query, {$set: update}, (error) => {

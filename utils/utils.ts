@@ -1,5 +1,5 @@
 /*
- * utils/utils.mjs
+ * utils/utils.ts
  *
  * Copyright (c) 2019, Artiom Baloian
  * All rights reserved.
@@ -15,29 +15,18 @@
 // - current: Current value.
 // - prev: Previous value.
 //
-// Returns percentage change of price or N/A if one of the arguments is zero or
+// Returns percentage change or N/A if one of the arguments is zero or
 // a negative value, which makes the percent change meaningless.
-function getPercentageChange(current, prev) {
-  if (!current || !prev) {
-    return 'N/A';
-  }
-
-  // Just to make sure that values are represented in floating point.
-  current = parseFloat(current);
-  prev = parseFloat(prev);
-
-  // A value of zero or a negative value makes the percent change meaningless.
+export function getPercentageChange(current: number, prev: number) {
   if (prev <= 0 || current <= 0) {
     return 'N/A';
   }
 
-  // Percentage Change Formula:
-  // ((current - prev) / |prev|) x 100
-  const change = ((current - prev) / Math.abs(prev)) * (parseFloat(100));
+  // Percentage Change Formula: ((current - prev) / |prev|) x 100
+  const change: number = ((current - prev) / Math.abs(prev)) * 100;
 
-  return Number(parseFloat(change).toFixed(2));
+  return Number(change.toFixed(2));
 }
-
 
 
 // Function checks if given object has a provided key/property or not.
@@ -50,33 +39,33 @@ function getPercentageChange(current, prev) {
 // - key: Provide key, which will be checked.
 //
 // Returns true if an object has 'key' property, otherwise false.
-function hasKey(obj, key) {
+export function hasKey(obj: any, key: string) {
   const has = Object.prototype.hasOwnProperty;
   return has.call(obj, String(key));
 }
 
 
+export function hasKeys(object: any, keys: Array<string>) {
+  if (!keys.length) return false;
+
+  for (let i = 0; i < keys.length; i++) {
+    if (!hasKey(object, keys[i])) return false;
+  }
+
+  return true;
+}
+
 
 // Function just prints provided data in "[timestamp] error extra_data" format
 // using console.error synchronous function.
-function Debug(error, extra_data = '') {
+export function Debug(error, extra_data = '') {
   const utc_iso_format = (new Date()).toISOString();
   const error_ts = '[' + utc_iso_format + ']';
   console.error(error_ts, error, extra_data);
 }
 
 
-
 // Returns a Promise that resolves after "ms" Milliseconds
-function sleep(ms) {
+export function sleep(ms: number) {
   return new Promise((res) => setTimeout(res, ms));
 }
-
-
-export {
-  getPercentageChange,
-  hasKey,
-  Debug,
-  sleep
-};
-

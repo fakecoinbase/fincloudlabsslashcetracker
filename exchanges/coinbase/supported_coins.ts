@@ -16,4 +16,3 @@ const coinbase_currencies = {
 };
 
 export default coinbase_currencies;
-

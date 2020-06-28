@@ -1,5 +1,5 @@
 /**
- * db/schemas.mjs
+ * db/schemas.ts
  *
  * Copyright (c) 2018-2019, Artiom Baloian
  * All rights reserved.
@@ -8,7 +8,7 @@
  *   File provides exchanges schema's for MongoDB database.
  */
 
-import { getSupportedCoins } from '../utils/supported_coins.mjs';
+import { getSupportedCoins } from '../utils/supported_coins';
 
 
 // Function constructs coins' metadata (coins_metadata variable) schema
@@ -26,7 +26,7 @@ import { getSupportedCoins } from '../utils/supported_coins.mjs';
 //    volume24h: <value>,
 //    last_update: <value>
 //   }
-function getExchCoinDataSchema(coin_name, data = null) {
+export function getExchCoinDataSchema(coin_name: string, data: any = null) {
   // Schema Properties.
   // -name: Coin's full name.
   // -market_cap: Market capitalization of coin.
@@ -59,12 +59,14 @@ function getExchCoinDataSchema(coin_name, data = null) {
 
 
 
-function getCoinsMetadata(exchange) {
+function getCoinsMetadata(exchange: string) {
   const coins_metadata = {};
   const supported_coins = getSupportedCoins(exchange);
-  for (const [ticker, name] of Object.entries(supported_coins)) {
+
+  Object.keys(supported_coins).forEach(ticker => {
+    const name = supported_coins[ticker];
     coins_metadata[ticker] = getExchCoinDataSchema(name);
-  }
+  });
 
   return coins_metadata;
 }
@@ -73,7 +75,7 @@ function getCoinsMetadata(exchange) {
 
 // Function creates schema for every single exchange in order to store supported
 // coins' metadata. Basically this will be used by exchanges_api functionalities.
-function getExchangeSchema(exchange_name) {
+export function getExchangeSchema(exchange_name: string) {
   // Schema Properties.
   //
   // -exchange: Exchange name.
@@ -81,14 +83,12 @@ function getExchangeSchema(exchange_name) {
   // -coins_metadata: Coins' (supported by exchange) metadata.
   //  See getExchCoinDataSchema() function for metadata info.
   const exchange_schema = {
-    _id: String(exchange_name),
-    exchange: String(exchange_name),
+    _id: exchange_name,
+    exchange: exchange_name,
     last_update: new Date(),
     coins_metadata: getCoinsMetadata(exchange_name)
   };
 
   return exchange_schema;
 }
-
-export { getExchangeSchema, getExchCoinDataSchema };
 

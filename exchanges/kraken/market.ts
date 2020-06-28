@@ -1,5 +1,5 @@
 /**
- * exchanges/kraken/market.mjs
+ * exchanges/kraken/market.ts
  *
  * Copyright (c) 2019, Artiom Baloian
  * All rights reserved.
@@ -57,4 +57,3 @@ const kraken_data = {
 };
 
 export default kraken_data;
-

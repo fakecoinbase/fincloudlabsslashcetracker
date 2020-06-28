@@ -1,5 +1,5 @@
 /**
- * exchanges/kraken/kraken.mjs
+ * exchanges/kraken/kraken.ts
  *
  * Copyright (c) 2019, Artiom Baloian
  * All rights reserved.
@@ -9,11 +9,11 @@
  *   provided by Kraken Pro) using Kraken Pro's Websocket Feed.
  */
 
-import kraken_data from './market.mjs';
-import ReconnectingWebsocket from '../../utils/reconnecting_websocket.mjs';
-import { updateExchangeDataOnDB } from '../../db/update_db.mjs';
-import { getSupportedCoins } from '../../utils/supported_coins.mjs';
-import { hasKey, Debug } from '../../utils/utils.mjs';
+import kraken_data from './market';
+import ReconnectingWebsocket from '../../utils/reconnecting_websocket';
+import { updateExchangeDataOnDB } from '../../db/update_db';
+import { getSupportedCoins } from '../../utils/supported_coins';
+import { hasKey, hasKeys, Debug } from '../../utils/utils';
 
 
 class Kraken {
@@ -22,6 +22,9 @@ class Kraken {
   // - request_msg: Websocket request message format. reqid is an optional,
   //   client originated ID reflected in response message. It must be a
   //   positive integer.
+  db: any;
+  request_msg: any;
+
   constructor(db) {
     this.db = db;
     this.request_msg = {
@@ -96,9 +99,7 @@ function verifyWebsocketData(ws_data) {
     }
 
     const market_data = ws_data[1];
-    if (hasKey(market_data, 'c') &&
-        hasKey(market_data, 'o') &&
-        hasKey(market_data, 'v')) {
+    if (hasKeys(market_data, ['c', 'o', 'v'])) {
       const coin_data = {
         ticker: String(ticker),
         market: String(market),
@@ -116,4 +117,3 @@ function verifyWebsocketData(ws_data) {
 }
 
 export default Kraken;
-

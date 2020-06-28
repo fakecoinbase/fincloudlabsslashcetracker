@@ -1,13 +1,17 @@
 {
   "name": "cetracker",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Cryptocurrency Exchanges Tracker",
-  "main": "run_tracker.mjs",
-  "author": "Artiom Baloian",
+  "main": "run_tracker.js",
+  "author": "Artiom Baloian <artiom.baloian@gmail.com>",
   "license": "ISC",
+  "type": "module",
   "scripts": {
-    "start": "NODE_ENV=${NODE_ENV-production} node --experimental-modules run_tracker.mjs",
-    "dev": "DEBUG=cetracker:* node --experimental-modules run_tracker.mjs"
+    "start": "tsc && NODE_ENV=${NODE_ENV-production} node --experimental-specifier-resolution=node dist/run_tracker.js",
+    "dev": "tsc && NODE_ENV=${NODE_ENV-development} node --experimental-specifier-resolution=node dist/run_tracker.js"
+  },
+  "engines": {
+    "node": ">=13.0.0"
   },
   "dependencies": {
     "axios": "^0.19.2",
@@ -19,6 +23,10 @@
     "zlib": "^1.0.5"
   },
   "devDependencies": {
+    "typescript": "^3.9.5",
+    "@types/node": "^14.0.13",
+    "@typescript-eslint/eslint-plugin": "^2.29.0",
+    "@typescript-eslint/parser": "^2.29.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.19.1"

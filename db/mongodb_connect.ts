@@ -1,9 +1,8 @@
-import assert from 'assert';
 import mongodb from 'mongodb';
 import tls from 'tls';
 
 
-async function getMongoDB(url, db_name, callback, hostname) {
+async function getMongoDB(url: string, db_name: string, hostname: string = '') {
   const options = {
     sslValidate: true,
     checkServerIdentity: (name, cert) => tls.checkServerIdentity(hostname || name, cert),

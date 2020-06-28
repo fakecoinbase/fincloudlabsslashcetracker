@@ -1,5 +1,5 @@
 /**
- * run_tracker.mjs
+ * run_tracker.ts
  *
  * Copyright (c) 2019, Artiom Baloian
  * All rights reserved.
@@ -9,18 +9,18 @@
  */
 
 import stdio from 'stdio';
-import getMongoDB from './db/mongodb_connect.mjs';
-import { setupDB } from './db/update_db.mjs';
-import { Debug } from './utils/utils.mjs';
-import { default_db_url, default_db_name } from './utils/constants.mjs';
+import getMongoDB from './db/mongodb_connect';
+import { setupDB } from './db/update_db';
+import { Debug } from './utils/utils';
+import { default_db_url, default_db_name } from './utils/constants';
 
-import Bitstamp from './exchanges/bitstamp/bitstamp.mjs';
-import Bittrex from './exchanges/bittrex/bittrex.mjs';
-import CoinbasePro from './exchanges/coinbase/coinbase_pro.mjs';
-import Kraken from './exchanges/kraken/kraken.mjs';
+import Bitstamp from './exchanges/bitstamp/bitstamp';
+import Bittrex from './exchanges/bittrex/bittrex';
+import CoinbasePro from './exchanges/coinbase/coinbase_pro';
+import Kraken from './exchanges/kraken/kraken';
 
 
-const argv = stdio.getopt({
+const argv: any = stdio.getopt({
   db_url: {
     key: 'url',
     args: 1,
@@ -73,7 +73,7 @@ function runCoinsTracking(db) {
 // -host: Override MongoDB hostname for TLS certificate validation.
 //
 // For example,
-// node --experimental-modules run_tracker.mjs --db_name my_mongo_db
+// node dist/run_tracker.ts --db_name my_mongo_db
 async function main() {
   try {
     const db = await getMongoDB(argv.db_url, argv.db_name);
@@ -88,4 +88,3 @@ async function main() {
 (async () => {
   main();
 })();
-

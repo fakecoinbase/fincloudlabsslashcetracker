@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import { Debug } from './utils.mjs';
+import { Debug } from './utils';
 
 
 // ReconnectingWebsocket is designed to establish websocket connection
@@ -18,7 +18,12 @@ import { Debug } from './utils.mjs';
 //    db: MongoDB database instance.
 //  }
 class ReconnectingWebsocket {
-  constructor(url, request_msg, callback, options) {
+  url: string;
+  request_msg: string;
+  callback: any;
+  options: any;
+  timer_id: any;
+  constructor(url: string, request_msg: string, callback: any, options: any) {
     this.url = url;
     this.request_msg = request_msg;
     this.callback = callback;

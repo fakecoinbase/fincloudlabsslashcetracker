@@ -26,4 +26,3 @@ const kraken_currencies = {
 };
 
 export default kraken_currencies;
-

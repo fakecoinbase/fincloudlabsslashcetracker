@@ -43,13 +43,13 @@ pm2 start npm --name "cetracker" -- run start
 For example,
 
 ```
-node --experimental-modules run_tracker.mjs --db_name my_db
+node dist/run_tracker.ts --db_name my_db
 ```
 
 
 ## How to Add a New Exchange API?
 1. Create a directory inside of the `exchanges` directory and give a name `<exchange_name>`.
-2. Create a `supported_coins.mjs` file inside of newly created directory, named by the exchange name, and provide
+2. Create a `supported_coins.ts` file inside of newly created directory, named by the exchange name, and provide
 supported coins in following format:
 
 ```
@@ -80,9 +80,9 @@ const currency_data = {
 function for storing the data on the MongoDB database. You may have an array of coins' data as the third argument of
 the function must be an array.
 
-6. Open `utils/supported_coins.mjs` file and follow `INSTRUCTION 1.` and `INSTRUCTION 2.`
+6. Open `utils/supported_coins.ts` file and follow `INSTRUCTION 1.` and `INSTRUCTION 2.`
 
-7. Now, open `coins_tracking.mjs` file in the root directory and call your new exchange's tracking functionality
+7. Now, open `coins_tracking.ts` file in the root directory and call your new exchange's tracking functionality
 inside of `RunCoinsTracking` function, and you are all set.
 
 ## Database Design

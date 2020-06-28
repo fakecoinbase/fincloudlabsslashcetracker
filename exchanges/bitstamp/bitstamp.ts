@@ -1,5 +1,5 @@
 /**
- * exchanges/bitstamp/bitstamp.mjs
+ * exchanges/bitstamp/bitstamp.ts
  *
  * Copyright (c) 2018, Artiom Baloian
  * All rights reserved.
@@ -10,10 +10,10 @@
  */
 
 import axios from 'axios';
-import bitstamp_data from './market.mjs';
-import { updateExchangeDataOnDB } from '../../db/update_db.mjs';
-import { getSupportedCoins } from '../../utils/supported_coins.mjs';
-import { hasKey, Debug, sleep } from '../../utils/utils.mjs';
+import bitstamp_data from './market';
+import { updateExchangeDataOnDB } from '../../db/update_db';
+import { getSupportedCoins } from '../../utils/supported_coins';
+import { hasKey, hasKeys, Debug, sleep } from '../../utils/utils';
 
 
 // WARNING: Rate Limits: Do not make more than 600 requests per 10 minutes,
@@ -25,14 +25,14 @@ class Bitstamp {
   // - db: MongoDB database.
   // - request_interval_ms: Request interval in milliseconds.
   // - per_request_interval_ms: Per coin request interval in milliseconds.
-  constructor(db) {
-    this.db = db;
-    this.request_interval_ms = 8000;
-    this.per_request_interval_ms = 200;
-    this.exchange_name = 'bitstamp';
-    this.api = axios.create({baseURL: 'https://www.bitstamp.net/api/v2/ticker'});
-  }
+  // - exchange_name: Exchange name.
+  db: any;
+  readonly request_interval_ms: number = 8000;
+  readonly per_request_interval_ms: number = 200;
+  readonly exchange_name: string = 'bitstamp';
+  readonly api: any = axios.create({baseURL: 'https://www.bitstamp.net/api/v2/ticker'});
 
+  constructor(db: any) { this.db = db; }
 
   async run() {
     while (1) {
@@ -45,7 +45,6 @@ class Bitstamp {
     }
   }
 
-
   async trackBitstampCoins() {
     for (let i = 0; i < bitstamp_data.length; i++) {
       let coin_data = await this.getBitstampCoinData(bitstamp_data[i]);
@@ -56,7 +55,6 @@ class Bitstamp {
       await sleep(this.per_request_interval_ms);
     }
   }
-
 
   async getBitstampCoinData(currency) {
     try {
@@ -81,9 +79,7 @@ class Bitstamp {
     // Check if expected keys/properties are provided.
     // Note that we check only properties, which are used in project.
     if (resp_data &&
-        hasKey(resp_data, 'last') &&
-        hasKey(resp_data, 'volume') &&
-        hasKey(resp_data, 'open') &&
+        hasKeys(resp_data, ['last', 'volume', 'open']) &&
         isNaN(resp_data.last) === false &&
         isNaN(resp_data.volume) === false &&
         isNaN(resp_data.open) === false) {

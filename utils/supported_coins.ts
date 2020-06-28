@@ -1,10 +1,10 @@
 // INSTRUCTION 1.
 // Import a new exchange's supported coins in following format:
-// <exchange_name>_currencies from '../exchanges/<exchange_name>/supported_coins.mjs';
-import bitstamp_currencies from '../exchanges/bitstamp/supported_coins.mjs';
-import bittrex_currencies from '../exchanges/bittrex/supported_coins.mjs';
-import coinbase_currencies from '../exchanges/coinbase/supported_coins.mjs';
-import kraken_currencies from '../exchanges/kraken/supported_coins.mjs';
+// <exchange_name>_currencies from '../exchanges/<exchange_name>/supported_coins.ts';
+import bitstamp_currencies from '../exchanges/bitstamp/supported_coins';
+import bittrex_currencies from '../exchanges/bittrex/supported_coins';
+import coinbase_currencies from '../exchanges/coinbase/supported_coins';
+import kraken_currencies from '../exchanges/kraken/supported_coins';
 
 // INSTRUCTION 2.
 // Add a new exchange to the dictionary in following format:

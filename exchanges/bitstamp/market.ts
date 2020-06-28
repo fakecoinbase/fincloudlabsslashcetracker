@@ -1,5 +1,5 @@
 /**
- * exchanges/bitstamp/market.mjs
+ * exchanges/bitstamp/market.ts
  *
  * Copyright (c) 2019, Artiom Baloian
  * All rights reserved.

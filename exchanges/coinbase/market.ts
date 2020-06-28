@@ -1,5 +1,5 @@
 /**
- * exchanges/coinbase/market.mjs
+ * exchanges/coinbase/market.ts
  *
  * Copyright (c) 2019, Artiom Baloian
  * All rights reserved.
@@ -48,4 +48,3 @@ const coinbase_data = {
 };
 
 export default coinbase_data;
-

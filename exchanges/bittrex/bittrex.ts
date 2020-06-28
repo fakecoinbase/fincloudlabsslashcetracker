@@ -1,5 +1,5 @@
 /**
- * exchanges/bittrex/bittrex.mjs
+ * exchanges/bittrex/bittrex.ts
  *
  * Copyright (c) 2018, Artiom Baloian
  * All rights reserved.
@@ -12,24 +12,20 @@
 import SignalR from 'signalr-client';
 import jsonic from 'jsonic';
 import zlib from 'zlib';
-
-import { getSupportedCoins } from '../../utils/supported_coins.mjs';
-import { updateExchangeDataOnDB } from '../../db/update_db.mjs';
-import { hasKey, Debug, sleep } from '../../utils/utils.mjs';
+import { getSupportedCoins } from '../../utils/supported_coins';
+import { updateExchangeDataOnDB } from '../../db/update_db';
+import { hasKey, hasKeys, Debug, sleep } from '../../utils/utils';
 
 
 class Bittrex {
-  // Data members:
-  // - db: MongoDB database.
-  constructor(db) {
-    this.db = db;
-    this.exchange_name = 'bittrex';
-    this.ws_url = 'wss://socket.bittrex.com/signalr';
-    this.client = null;
-    this.socket_connected = false;
-    this.ws_recall_interval_ms = 8000;
-  }
+  db: any;
+  readonly ws_recall_interval_ms: number = 8000;
+  readonly exchange_name: string = 'bittrex';
+  readonly ws_url: string = 'wss://socket.bittrex.com/signalr';
+  client: any = null;
+  socket_connected: boolean = false;
 
+  constructor(db: any) { this.db = db; }
 
   async run() {
     while (1) {
@@ -80,7 +76,7 @@ class Bittrex {
       const data = jsonic(message.utf8Data);
       if (hasKey(data, 'R') && data.R) {
         const b64 = data.R;
-        const raw = new Buffer.from(b64, 'base64');
+        const raw = Buffer.from(b64, 'base64');
         zlib.inflateRaw(raw, (error, inflated) => {
           if (!error) {
             const json_data = JSON.parse(inflated.toString('utf8'));
@@ -148,14 +144,11 @@ class Bittrex {
   // data and data contains market name, volume, last price and previous day price.
   VerifyReceivedData(bittrex_data) {
     if (bittrex_data && hasKey(bittrex_data, 's') && bittrex_data.s) {
-      const market_summary = [];
+      const market_summary: any = [];
       const summary_data = bittrex_data.s;
       for (let i = 0; i < summary_data.length; i++) {
         const market_data = summary_data[i];
-        if (hasKey(market_data, 'M') &&
-            hasKey(market_data, 'm') &&
-            hasKey(market_data, 'l') &&
-            hasKey(market_data, 'PD') &&
+        if (hasKeys(market_data, ['M', 'm', 'l', 'PD']) &&
             isNaN(market_data.V) === false &&
             isNaN(market_data.l) === false &&
             isNaN(market_data.PD) === false) {

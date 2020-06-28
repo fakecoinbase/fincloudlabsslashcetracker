@@ -1,5 +1,5 @@
 /**
- * exchanges/coinbase/ws_coinbase_pro.mjs
+ * exchanges/coinbase/ws_coinbase_pro.ts
  *
  * Copyright (c) 2018-2019, Artiom Baloian
  * All rights reserved.
@@ -11,12 +11,16 @@
  *   and trades.
  */
 
-import ReconnectingWebsocket from '../../utils/reconnecting_websocket.mjs';
-import coinbase_data from './market.mjs';
-import { updateExchangeDataOnDB } from '../../db/update_db.mjs';
-import { hasKey, Debug } from '../../utils/utils.mjs';
+import ReconnectingWebsocket from '../../utils/reconnecting_websocket';
+import coinbase_data from './market';
+import { updateExchangeDataOnDB } from '../../db/update_db';
+import { hasKey, hasKeys, Debug } from '../../utils/utils';
+
 
 class CoinbasePro {
+  db: any;
+  request_msg: any;
+
   constructor(db) {
     this.db = db;
     this.request_msg = {
@@ -25,9 +29,7 @@ class CoinbasePro {
     };
   }
 
-  run() {
-    this.connect();
-  }
+  run() { this.connect(); }
 
   connect() {
     const socket = new ReconnectingWebsocket(
@@ -67,10 +69,7 @@ function verifyWebsocketData(ws_data) {
   // which are used in the project.
   if (ws_data && hasKey(ws_data, 'type') &&
       ws_data.type === 'ticker' &&
-      hasKey(ws_data, 'product_id') &&
-      hasKey(ws_data, 'price') &&
-      hasKey(ws_data, 'open_24h') &&
-      hasKey(ws_data, 'volume_24h') &&
+      hasKeys(ws_data, ['product_id', 'price', 'open_24h', 'volume_24h']) &&
       ws_data.product_id && ws_data.price) {
     const product_id = String(ws_data.product_id);
     const ticker = String((product_id.split('-'))[0]);
