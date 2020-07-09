@@ -11,7 +11,7 @@
 import { getSupportedCoins } from '../utils/supported_coins';
 
 
-// Function constructs coins' metadata (coins_metadata variable) schema
+// Function constructs coins' metadata (data property) schema
 // for exchange coins.
 //
 // Arguments:
@@ -60,15 +60,15 @@ export function getExchCoinDataSchema(coin_name: string, data: any = null) {
 
 
 function getCoinsMetadata(exchange: string) {
-  const coins_metadata = {};
+  const data = {};
   const supported_coins = getSupportedCoins(exchange);
 
   Object.keys(supported_coins).forEach(ticker => {
     const name = supported_coins[ticker];
-    coins_metadata[ticker] = getExchCoinDataSchema(name);
+    data[ticker] = getExchCoinDataSchema(name);
   });
 
-  return coins_metadata;
+  return data;
 }
 
 
@@ -78,15 +78,15 @@ function getCoinsMetadata(exchange: string) {
 export function getExchangeSchema(exchange_name: string) {
   // Schema Properties.
   //
-  // -exchange: Exchange name.
+  // -name: Exchange name.
   // -last_update: The last update of exchange in UTC standard.
-  // -coins_metadata: Coins' (supported by exchange) metadata.
-  //  See getExchCoinDataSchema() function for metadata info.
+  // -data: Coins' metadata. See getExchCoinDataSchema() function for metadata
+  //  info.
   const exchange_schema = {
     _id: exchange_name,
-    exchange: exchange_name,
+    name: exchange_name,
     last_update: new Date(),
-    coins_metadata: getCoinsMetadata(exchange_name)
+    data: getCoinsMetadata(exchange_name)
   };
 
   return exchange_schema;

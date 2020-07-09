@@ -8,7 +8,7 @@
  *   File provides functionality to update database for given exchange.
  */
 
-import { exchs_market_data_coll } from '../utils/constants';
+import { crypto_market_data_coll } from '../utils/constants';
 import { getExchangeSchema, getExchCoinDataSchema } from './schemas';
 import {
   getPercentageChange,
@@ -31,7 +31,7 @@ function updateExistingData(exchanges_col, exchange_name, ws_data_list) {
   const update = {};
   for (let i = 0; i < ws_data_list.length; i++) {
     const coin_data = ws_data_list[i];
-    const embedded_path = 'coins_metadata.' + coin_data.ticker;
+    const embedded_path = 'data.' + coin_data.ticker;
     const market = coin_data.market;
 
     coin_data['change24h'] = getPercentageChange(coin_data.price, coin_data.open_price);
@@ -67,7 +67,7 @@ function updateExchangeDataOnDB(db, exchange_name, data_list) {
   // TODO I should invoke a function to get coins' supply.
 
   if (data_list && data_list.length > 0) {
-    const coll = db.collection(exchs_market_data_coll);
+    const coll = db.collection(crypto_market_data_coll);
     updateExistingData(coll, exchange_name, data_list);
   }
 }
@@ -90,7 +90,7 @@ async function setupMongoDB(coll, exch_name) {
         const update = {};
         // TODO What if a coin was removed from the given exchange?
         Object.keys(exch_coins).forEach(ticker => {
-          const embedded_path = 'coins_metadata.' + ticker;
+          const embedded_path = 'data.' + ticker;
           update[embedded_path] = getExchCoinDataSchema(exch_coins[ticker]);
         });
 
@@ -126,7 +126,7 @@ async function setupMongoDB(coll, exch_name) {
 // Arguments:
 // - db: MongoDB database.
 async function setupDB(db) {
-  const coll = db.collection(exchs_market_data_coll);
+  const coll = db.collection(crypto_market_data_coll);
   const exchanges = getSupportedExchanges();
 
   await Promise.all(exchanges.map(async (exch) => setupMongoDB(coll, exch)));

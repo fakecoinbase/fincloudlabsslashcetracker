@@ -1,7 +1,7 @@
 {
   "name": "cetracker",
-  "version": "0.2.1",
-  "description": "Cryptocurrency Exchanges Tracker",
+  "version": "0.2.2",
+  "description": "Cryptocurrency Exchanges Market Data Tracker",
   "main": "run_tracker.js",
   "author": "Artiom Baloian <artiom.baloian@gmail.com>",
   "license": "ISC",
@@ -16,14 +16,14 @@
   "dependencies": {
     "axios": "^0.19.2",
     "jsonic": "^0.3.1",
-    "mongodb": "^3.5.6",
+    "mongodb": "^3.5.9",
     "signalr-client": "0.0.20",
     "stdio": "^2.0.1",
-    "ws": "^7.3.0",
+    "ws": "^7.3.1",
     "zlib": "^1.0.5"
   },
   "devDependencies": {
-    "typescript": "^3.9.5",
+    "typescript": "^3.9.6",
     "@types/node": "^14.0.13",
     "@typescript-eslint/eslint-plugin": "^2.29.0",
     "@typescript-eslint/parser": "^2.29.0",

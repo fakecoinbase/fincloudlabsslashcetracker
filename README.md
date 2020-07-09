@@ -87,13 +87,13 @@ inside of `RunCoinsTracking` function, and you are all set.
 
 ## Database Design
 **CETracker** uses MongoDB database. By default database name is set to `cetracker_db` which has one collection, and
-collection name is `exchs_market_data_coll`. See collection's document schema bellow:
+collection name is `crypto_market_data_coll`. See collection's document schema bellow:
 
 ```
 { _id: <exchange_name>,
-  exchange: <exchange_name>,
+  name: <exchange_name>,
   last_update: <UTC ISO Format>,
-  coins_metadata: {
+  data: {
     <coin_ticker> : {
       name: <coin_name>,
       price: {
